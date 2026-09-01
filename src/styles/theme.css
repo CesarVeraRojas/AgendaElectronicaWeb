@@ -1,0 +1,182 @@
+/* ============================================================
+   theme.css — Color palette, typography and base layout
+   Mirrors: ui/theme/Color.kt + ui/theme/Theme.kt + ui/theme/Type.kt
+   ============================================================ */
+
+:root {
+    /* === Primary — Azul claro (mirrors PrimaryLight / PrimaryDark) === */
+    --primary:               #4FC3F7;
+    --primary-dark:          #0288D1;
+    --on-primary:            #FFFFFF;
+    --primary-container:     #B3E5FC;
+    --on-primary-container:  #01579B;
+
+    /* === Secondary — Verde suave === */
+    --secondary:             #81C784;
+    --secondary-dark:        #388E3C;
+    --on-secondary:          #FFFFFF;
+    --secondary-container:   #C8E6C9;
+    --on-secondary-container:#1B5E20;
+
+    /* === Tertiary — Amarillo pastel === */
+    --tertiary:              #FFF176;
+    --tertiary-dark:         #F9A825;
+    --on-tertiary:           #1C1B1F;
+    --tertiary-container:    #FFF9C4;
+    --on-tertiary-container: #F57F17;
+
+    /* === Error === */
+    --error:                 #E57373;
+    --error-dark:            #CF6679;
+    --on-error:              #FFFFFF;
+    --error-container:       #FFCDD2;
+    --on-error-container:    #B71C1C;
+
+    /* === Background & Surface === */
+    --background:            #F5F9FC;
+    --surface:               #FFFFFF;
+    --surface-variant:       #E3F2FD;
+    --on-background:         #1C1B1F;
+    --on-surface:            #1C1B1F;
+    --on-surface-variant:    #49454F;
+    --outline:               #79747E;
+
+    /* === Typography (mirrors Type.kt — Material3 type scale) === */
+    --font-family:           'Roboto', sans-serif;
+
+    /* === Elevation (box-shadow) === */
+    --elevation-1: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.24);
+    --elevation-2: 0 3px 6px rgba(0,0,0,.16), 0 3px 6px rgba(0,0,0,.23);
+    --elevation-3: 0 10px 20px rgba(0,0,0,.19), 0 6px 6px rgba(0,0,0,.23);
+
+    /* === Border radius (mirrors RoundedCornerShape) === */
+    --radius-sm:  8px;
+    --radius-md:  12px;
+    --radius-lg:  16px;
+    --radius-xl:  24px;
+
+    /* === Spacing === */
+    --sp-xs: 4px;
+    --sp-sm: 8px;
+    --sp-md: 16px;
+    --sp-lg: 24px;
+    --sp-xl: 32px;
+
+    /* === Transitions === */
+    --transition-fast:   150ms ease;
+    --transition-medium: 300ms ease;
+}
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: var(--font-family);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--on-background);
+    background-color: var(--background);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    color: var(--primary-dark);
+    text-decoration: none;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+button {
+    font-family: var(--font-family);
+}
+
+input, select, textarea {
+    font-family: var(--font-family);
+}
+
+/* ============================================================
+   Typography helpers (mirrors MaterialTheme.typography)
+   ============================================================ */
+.text-headline-large  { font-size: 32px; font-weight: 400; line-height: 40px; }
+.text-headline-medium { font-size: 28px; font-weight: 400; line-height: 36px; }
+.text-headline-small  { font-size: 24px; font-weight: 400; line-height: 32px; }
+.text-title-large     { font-size: 22px; font-weight: 400; line-height: 28px; }
+.text-title-medium    { font-size: 16px; font-weight: 500; line-height: 24px; }
+.text-title-small     { font-size: 14px; font-weight: 500; line-height: 20px; }
+.text-body-large      { font-size: 16px; font-weight: 400; line-height: 24px; }
+.text-body-medium     { font-size: 14px; font-weight: 400; line-height: 20px; }
+.text-body-small      { font-size: 12px; font-weight: 400; line-height: 16px; }
+.text-label-large     { font-size: 14px; font-weight: 500; line-height: 20px; }
+.text-label-medium    { font-size: 12px; font-weight: 500; line-height: 16px; }
+.text-label-small     { font-size: 11px; font-weight: 500; line-height: 16px; }
+
+/* Color helpers */
+.text-primary        { color: var(--primary-dark); }
+.text-secondary      { color: var(--secondary-dark); }
+.text-error          { color: var(--error); }
+.text-muted          { color: var(--on-surface-variant); }
+.text-on-primary     { color: var(--on-primary); }
+.text-bold           { font-weight: 700; }
+.text-semibold       { font-weight: 500; }
+.text-center         { text-align: center; }
+
+/* ============================================================
+   Page layout (mirrors Scaffold + fillMaxSize)
+   ============================================================ */
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--background);
+    position: relative;
+}
+
+.page-content {
+    flex: 1;
+    padding: var(--sp-md);
+    overflow-y: auto;
+}
+
+/* Responsive padding scale */
+@media (min-width: 600px) {
+    .page-content { padding: var(--sp-lg); }
+}
+@media (min-width: 960px) {
+    .page-content {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: var(--sp-xl) var(--sp-lg);
+        width: 100%;
+    }
+}
+
+/* ============================================================
+   Loading screen (initial spinner before router resolves)
+   ============================================================ */
+.loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: var(--sp-md);
+    background-color: var(--background);
+}

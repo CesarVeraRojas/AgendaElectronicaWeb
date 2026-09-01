@@ -1,0 +1,23 @@
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*~
+
+# Node (por si algún día se añade tooling)
+node_modules/
+npm-debug.log*
+
+# Configuración local y secretos — nunca versionar
+.env
+.env.local
+config.local.js
+
+# Nada de backend vive en este repo:
+# el PHP y sus credenciales están en el repositorio privado aparte.
+*.php

@@ -1,0 +1,25 @@
+# Blueprint de Render — sitio estático.
+# Opcional: si prefieres configurarlo a mano en el panel, usa estos mismos valores
+#   Root Directory: (vacío)   Build Command: (vacío)   Publish Directory: .
+services:
+  - type: web
+    name: agenda-electronica-web
+    runtime: static
+    staticPublishPath: .
+
+    # No hay paso de compilación: son archivos estáticos tal cual.
+    buildCommand: ""
+
+    # El router es por hash (#/login, #/menu), así que no hacen falta
+    # reglas de rewrite: el servidor siempre entrega index.html.
+
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
