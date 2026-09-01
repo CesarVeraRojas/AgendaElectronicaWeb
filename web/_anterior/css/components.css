@@ -1,0 +1,817 @@
+/* ============================================================
+   components.css — Reusable UI components
+   Mirrors Material3 Compose components used across the app
+   ============================================================ */
+
+/* ============================================================
+   TOP APP BAR  (mirrors TopAppBar / CenterAlignedTopAppBar)
+   ============================================================ */
+.top-app-bar {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--sp-sm);
+    height: 64px;
+    background-color: var(--primary-dark);
+    color: var(--on-primary);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--elevation-2);
+    gap: var(--sp-sm);
+    flex-shrink: 0;
+}
+
+.top-app-bar__title {
+    flex: 1;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--on-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.top-app-bar__btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--on-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.top-app-bar__btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================================
+   CARDS  (mirrors Card / ElevatedCard)
+   ============================================================ */
+.card {
+    background-color: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--elevation-1);
+    overflow: hidden;
+}
+
+.card--elevated   { box-shadow: var(--elevation-2); }
+.card--filled     { box-shadow: none; }
+.card--primary    { background-color: var(--primary-container); }
+.card--secondary  { background-color: var(--secondary-container); }
+.card--tertiary   { background-color: var(--tertiary-container); }
+.card--surface-v  { background-color: var(--surface-variant); }
+.card--unread     { background-color: var(--primary-container); box-shadow: var(--elevation-2); }
+
+.card--clickable {
+    cursor: pointer;
+    transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+.card--clickable:hover {
+    box-shadow: var(--elevation-2);
+    transform: translateY(-1px);
+}
+
+.card__content {
+    padding: var(--sp-md);
+}
+
+/* ============================================================
+   BUTTONS  (mirrors Button / OutlinedButton / TextButton)
+   ============================================================ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-sm);
+    height: 40px;
+    padding: 0 var(--sp-lg);
+    border-radius: var(--radius-md);
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: var(--font-family);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.btn:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Filled (default) */
+.btn--primary {
+    background-color: var(--primary-dark);
+    color: var(--on-primary);
+}
+.btn--primary:hover { background-color: #0277BD; box-shadow: var(--elevation-1); }
+
+/* Secondary filled */
+.btn--secondary {
+    background-color: var(--secondary-dark);
+    color: var(--on-secondary);
+}
+.btn--secondary:hover { background-color: #2E7D32; }
+
+/* Outlined */
+.btn--outlined {
+    background-color: transparent;
+    color: var(--primary-dark);
+    border: 1.5px solid var(--primary-dark);
+}
+.btn--outlined:hover { background-color: var(--primary-container); }
+
+/* Text */
+.btn--text {
+    background-color: transparent;
+    color: var(--primary-dark);
+    padding: 0 var(--sp-md);
+}
+.btn--text:hover { background-color: var(--surface-variant); }
+
+/* Danger */
+.btn--danger {
+    background-color: var(--error);
+    color: var(--on-error);
+}
+.btn--danger:hover { background-color: var(--error-dark); }
+
+/* Full width + tall (matches height: 50.dp Modifier in Android) */
+.btn--full {
+    width: 100%;
+    height: 50px;
+    border-radius: var(--radius-md);
+}
+
+/* ============================================================
+   FLOATING ACTION BUTTON  (mirrors FloatingActionButton)
+   ============================================================ */
+.fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--primary-dark);
+    color: var(--on-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--elevation-3);
+    z-index: 200;
+    transition: all var(--transition-fast);
+}
+.fab:hover {
+    background-color: var(--primary);
+    transform: scale(1.05);
+}
+.fab .material-icons { font-size: 24px; }
+
+/* ============================================================
+   TEXT FIELDS  (mirrors OutlinedTextField)
+   ============================================================ */
+.text-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.text-field__label {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--on-surface-variant);
+}
+
+.text-field__input,
+.text-field__textarea {
+    width: 100%;
+    height: 48px;
+    padding: 0 var(--sp-md);
+    border: 1.5px solid var(--outline);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-family: var(--font-family);
+    color: var(--on-surface);
+    background-color: var(--surface);
+    outline: none;
+    transition: border-color var(--transition-fast), border-width var(--transition-fast);
+}
+
+.text-field__textarea {
+    height: auto;
+    min-height: 100px;
+    padding: var(--sp-md);
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.text-field__input:focus,
+.text-field__textarea:focus {
+    border-color: var(--primary-dark);
+    border-width: 2px;
+}
+
+.text-field__input:disabled,
+.text-field__textarea:disabled {
+    opacity: 0.38;
+    background-color: var(--surface-variant);
+    cursor: not-allowed;
+}
+
+.text-field__hint {
+    font-size: 12px;
+    color: var(--on-surface-variant);
+}
+
+.text-field__error-msg {
+    font-size: 12px;
+    color: var(--error);
+}
+
+/* Select (AutoCompleteTextView equivalent) */
+.text-field__select-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.text-field__select-wrap::after {
+    content: 'expand_more';
+    font-family: 'Material Icons';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--on-surface-variant);
+    pointer-events: none;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.text-field__select {
+    width: 100%;
+    height: 48px;
+    padding: 0 var(--sp-md);
+    padding-right: 40px;
+    border: 1.5px solid var(--outline);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-family: var(--font-family);
+    color: var(--on-surface);
+    background-color: var(--surface);
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+}
+
+.text-field__select:focus {
+    border-color: var(--primary-dark);
+    border-width: 2px;
+}
+
+/* ============================================================
+   TABS  (mirrors TabRow / Tab)
+   ============================================================ */
+.tab-row {
+    display: flex;
+    background-color: var(--surface);
+    border-bottom: 1px solid rgba(121, 116, 126, 0.3);
+    flex-shrink: 0;
+}
+
+.tab {
+    flex: 1;
+    height: 48px;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: var(--font-family);
+    color: var(--on-surface-variant);
+    cursor: pointer;
+    position: relative;
+    transition: color var(--transition-fast);
+}
+
+.tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: var(--primary-dark);
+    transform: scaleX(0);
+    transition: transform var(--transition-medium);
+    border-radius: 3px 3px 0 0;
+}
+
+.tab--active {
+    color: var(--primary-dark);
+}
+.tab--active::after {
+    transform: scaleX(1);
+}
+
+/* ============================================================
+   SPINNER & PROGRESS  (mirrors CircularProgressIndicator / LinearProgressIndicator)
+   ============================================================ */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--primary-container);
+    border-top-color: var(--primary-dark);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.spinner--sm {
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
+}
+
+.spinner--on-primary {
+    border-color: rgba(255,255,255,0.3);
+    border-top-color: var(--on-primary);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.linear-progress {
+    width: 100%;
+    height: 4px;
+    background-color: var(--primary-container);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.linear-progress__bar {
+    height: 100%;
+    background-color: var(--primary-dark);
+    animation: indeterminate 1.5s ease-in-out infinite;
+}
+
+@keyframes indeterminate {
+    0%   { width: 0%;  margin-left: 0%; }
+    50%  { width: 60%; margin-left: 20%; }
+    100% { width: 0%;  margin-left: 100%; }
+}
+
+/* ============================================================
+   ALERTS / SNACKBAR  (mirrors error text + Snackbar)
+   ============================================================ */
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-sm);
+    padding: var(--sp-md);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.alert--error {
+    background-color: var(--error-container);
+    color: var(--on-error-container);
+    border-left: 4px solid var(--error);
+}
+
+.alert--success {
+    background-color: var(--secondary-container);
+    color: var(--on-secondary-container);
+    border-left: 4px solid var(--secondary-dark);
+}
+
+.alert--info {
+    background-color: var(--primary-container);
+    color: var(--on-primary-container);
+    border-left: 4px solid var(--primary-dark);
+}
+
+/* ============================================================
+   BADGE  (unread indicator dot — mirrors the blue Circle in MensajeCard)
+   ============================================================ */
+.badge {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--primary-dark);
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   MENU CARDS GRID  (mirrors the chunked 2-column grid in MenuScreen)
+   ============================================================ */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-md);
+    padding: var(--sp-md);
+    width: 100%;
+}
+
+@media (min-width: 600px) {
+    .menu-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 960px) {
+    .menu-grid {
+        grid-template-columns: repeat(4, 1fr);
+        max-width: 900px;
+        margin: 0 auto;
+    }
+}
+
+.menu-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-sm);
+    height: 120px;
+    border-radius: var(--radius-lg);
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-family);
+    color: var(--on-surface);
+    text-align: center;
+    padding: var(--sp-md);
+    cursor: pointer;
+    box-shadow: var(--elevation-1);
+    transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.menu-card:hover {
+    box-shadow: var(--elevation-2);
+    transform: translateY(-2px);
+}
+
+.menu-card .material-icons {
+    font-size: 36px;
+    color: var(--on-surface);
+}
+
+.menu-card--primary   { background-color: var(--primary-container); }
+.menu-card--secondary { background-color: var(--secondary-container); }
+.menu-card--tertiary  { background-color: var(--tertiary-container); }
+
+/* ============================================================
+   DIVIDER  (mirrors Spacer + border)
+   ============================================================ */
+.divider {
+    height: 1px;
+    background-color: var(--outline);
+    opacity: 0.3;
+    width: 100%;
+}
+
+/* ============================================================
+   EMPTY STATE  (mirrors empty list state with icon + text)
+   ============================================================ */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--sp-xl);
+    gap: var(--sp-md);
+    color: var(--on-surface-variant);
+    text-align: center;
+    min-height: 200px;
+}
+
+.empty-state .material-icons {
+    font-size: 64px;
+    opacity: 0.4;
+}
+
+.empty-state p {
+    font-size: 14px;
+}
+
+/* ============================================================
+   FORM LAYOUT  (mirrors Column/Spacer form patterns)
+   ============================================================ */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-md);
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-md);
+    padding: var(--sp-md);
+    background-color: var(--surface-variant);
+    border-radius: var(--radius-lg);
+}
+
+.form-section__title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--primary-dark);
+    padding-bottom: var(--sp-xs);
+    border-bottom: 1px solid rgba(2, 136, 209, 0.3);
+}
+
+/* ============================================================
+   PHOTO GALLERY  (mirrors LazyVerticalGrid de fotos)
+   ============================================================ */
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--sp-sm);
+    padding: var(--sp-sm);
+}
+
+@media (min-width: 600px) {
+    .photo-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+}
+
+.photo-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    cursor: pointer;
+    background-color: var(--surface-variant);
+}
+
+.photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-medium);
+}
+
+.photo-item:hover img {
+    transform: scale(1.05);
+}
+
+.photo-item__date {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--sp-xs) var(--sp-sm);
+    background: linear-gradient(transparent, rgba(0,0,0,0.65));
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* ============================================================
+   LIGHTBOX  (mirrors full-screen photo dialog)
+   ============================================================ */
+.lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.92);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: var(--sp-md);
+    padding: var(--sp-md);
+}
+
+.lightbox--open {
+    display: flex;
+}
+
+.lightbox__img {
+    max-width: 95vw;
+    max-height: 78vh;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+}
+
+.lightbox__close {
+    position: absolute;
+    top: var(--sp-md);
+    right: var(--sp-md);
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--transition-fast);
+}
+
+.lightbox__close:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.lightbox__download {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-sm);
+    color: white;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: var(--radius-md);
+    padding: var(--sp-sm) var(--sp-lg);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: var(--font-family);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color var(--transition-fast);
+}
+
+.lightbox__download:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ============================================================
+   CHIPS  (mirrors AssistChip / SuggestionChip)
+   ============================================================ */
+.chip {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 var(--sp-md);
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    gap: var(--sp-xs);
+    white-space: nowrap;
+}
+
+.chip--primary   { background-color: var(--primary-container);   color: var(--on-primary-container); }
+.chip--secondary { background-color: var(--secondary-container); color: var(--on-secondary-container); }
+.chip--tertiary  { background-color: var(--tertiary-container);  color: var(--on-tertiary-container); }
+.chip--error     { background-color: var(--error-container);     color: var(--on-error-container); }
+
+/* ============================================================
+   ATTENDANCE LIST  (mirrors asistencia screen list)
+   ============================================================ */
+.attendance-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-sm);
+}
+
+.attendance-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--sp-md);
+    background-color: var(--surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--elevation-1);
+    gap: var(--sp-md);
+}
+
+.attendance-item__name {
+    font-size: 15px;
+    color: var(--on-surface);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.attendance-select {
+    border: 1.5px solid var(--outline);
+    border-radius: var(--radius-sm);
+    padding: 6px var(--sp-sm);
+    font-size: 13px;
+    font-family: var(--font-family);
+    background-color: var(--surface);
+    color: var(--on-surface);
+    cursor: pointer;
+    min-width: 120px;
+}
+
+/* ============================================================
+   FOOTER — college info  (mirrors surfaceVariant Box at bottom of MenuScreen)
+   ============================================================ */
+.footer-info {
+    background-color: rgba(227, 242, 253, 0.6);
+    padding: var(--sp-md);
+    text-align: center;
+    margin-top: auto;
+    border-top: 1px solid rgba(121, 116, 126, 0.2);
+}
+
+.footer-info p {
+    font-size: 13px;
+    color: var(--on-surface-variant);
+    line-height: 1.6;
+}
+
+/* ============================================================
+   MESSAGE CARD  (mirrors MensajeCard composable)
+   ============================================================ */
+.mensaje-card {
+    padding: var(--sp-md);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+    background-color: var(--surface-variant);
+    box-shadow: var(--elevation-1);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-md);
+}
+
+.mensaje-card--unread {
+    background-color: var(--primary-container);
+    box-shadow: var(--elevation-2);
+}
+
+.mensaje-card:hover {
+    box-shadow: var(--elevation-2);
+    transform: translateY(-1px);
+}
+
+.mensaje-card__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.mensaje-card__from {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--on-surface);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mensaje-card__from--bold { font-weight: 700; }
+
+.mensaje-card__subject {
+    font-size: 14px;
+    color: var(--on-surface);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 2px;
+}
+
+.mensaje-card__subject--semibold { font-weight: 600; }
+
+.mensaje-card__date {
+    font-size: 11px;
+    color: var(--on-surface-variant);
+    margin-top: 4px;
+}
+
+/* ============================================================
+   SCROLL UTILITIES
+   ============================================================ */
+.scroll-y {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================
+   RESPONSIVE UTILITIES
+   ============================================================ */
+.flex-col   { display: flex; flex-direction: column; }
+.flex-row   { display: flex; flex-direction: row; align-items: center; }
+.flex-1     { flex: 1; }
+.gap-sm     { gap: var(--sp-sm); }
+.gap-md     { gap: var(--sp-md); }
+.gap-lg     { gap: var(--sp-lg); }
+.mt-sm      { margin-top: var(--sp-sm); }
+.mt-md      { margin-top: var(--sp-md); }
+.mt-lg      { margin-top: var(--sp-lg); }
+.mb-md      { margin-bottom: var(--sp-md); }
+.p-md       { padding: var(--sp-md); }
+.w-full     { width: 100%; }
+
+@media (max-width: 599px) {
+    .hide-mobile { display: none !important; }
+}
+@media (min-width: 600px) {
+    .hide-tablet-up { display: none !important; }
+}

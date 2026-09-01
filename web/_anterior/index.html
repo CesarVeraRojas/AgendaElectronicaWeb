@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0288D1" />
+    <meta name="description" content="Agenda Electrónica — Happy Children" />
+    <title>Agenda Electrónica</title>
+
+    <!-- Google Fonts: Roboto (same as Material3 Android) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
+    <!-- Material Icons (same icon set as Android app) -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
+    <!-- App styles -->
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+    <!-- SPA root — all page content is injected here by router.js -->
+    <div id="app">
+        <div class="loading-screen">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <!-- Entry point: ES module, loads router which lazily loads pages -->
+    <script type="module" src="js/router.js"></script>
+</body>
+</html>
