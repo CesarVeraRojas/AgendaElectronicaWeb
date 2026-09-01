@@ -9,6 +9,8 @@ export class ColegioRepositoryImpl extends ColegioRepository {
 
     async obtenerDetalles(colegioId) {
         const json = await this.api.getColegioDetails(colegioId);
-        return aColegio(json?.data ?? json);
+        // get_colegio_details.php responde {success:true, colegio:{nombre, direccion}}:
+        // respondWithSuccess() fusiona la clave en la raíz, no la anida bajo "data".
+        return aColegio(json?.colegio ?? json?.data ?? json);
     }
 }
