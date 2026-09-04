@@ -16,11 +16,41 @@ import {
 } from '../components/ui.js';
 import { avisoError, avisoExito } from '../components/avisos.js';
 
-/** Mismas listas que usan los formularios de creación. */
-const TIPOS_DOC_ESTUDIANTE = ['NUIP', 'TI'];
-const GENEROS              = ['Masculino', 'Femenino', 'Otro'];
+/**
+ * Vocabularios que acepta CADA endpoint, que no son los del formulario de alta.
+ *
+ * `agregar_estudiante.php` traduce 'Masculino'→'M' y 'Femenino'→'F' antes de
+ * guardar, así que en la tabla vive M/F/OTRO. `editar_estudiante.php` valida
+ * contra esos mismos códigos pero NO hace la traducción, de modo que enviarle
+ * la palabra completa da 400. Se guarda el código y se muestra la palabra.
+ */
+const GENEROS = [
+    { valor: 'M',    etiqueta: 'Masculino' },
+    { valor: 'F',    etiqueta: 'Femenino'  },
+    { valor: 'OTRO', etiqueta: 'Otro'      },
+];
+
+/**
+ * El alta acepta CC, TI, RC, CE, PA y NUIP; la edición acepta las cinco
+ * primeras pero se dejó NUIP fuera. Se ofrecen todas para que un estudiante
+ * dado de alta con NUIP muestre su valor real; si se elige NUIP, el backend
+ * responderá 400 hasta que se añada allí.
+ */
+const TIPOS_DOC_ESTUDIANTE = ['NUIP', 'TI', 'CC', 'RC', 'CE', 'PA'];
 const TIPOS_DOC_ADULTO     = ['CC', 'CE', 'PA', 'Cédula de Ciudadanía', 'Cédula de Extranjería', 'Pasaporte'];
 const PARENTESCOS          = ['Papá', 'Mamá', 'Abuelo', 'Abuela', 'Tío', 'Tía', 'Otro'];
+
+/**
+ * Si el valor guardado no está entre las opciones, el <select> se quedaría en
+ * blanco y la validación de obligatorios bloquearía el formulario entero por un
+ * campo que el usuario ni siquiera quería tocar. Añadirlo como opción propia
+ * hace que el dato siempre se vea y que no se pierda al guardar.
+ */
+function conValorGuardado(opciones, valor) {
+    if (!valor) return opciones;
+    const existe = opciones.some(o => String(typeof o === 'string' ? o : o.valor) === String(valor));
+    return existe ? opciones : [{ valor, etiqueta: valor }, ...opciones];
+}
 
 /**
  * Configuración por tipo. Concentra en un solo sitio qué se lista, cómo se
@@ -210,7 +240,10 @@ async function abrirEditor(id) {
     const campos = cfg.campos.map(c => {
         const valor = original[c.id] ?? '';
         if (c.tipo === 'select') {
-            return campoSelect({ id: `f_${c.id}`, etiqueta: c.etiqueta, opciones: c.opciones, valor });
+            return campoSelect({
+                id: `f_${c.id}`, etiqueta: c.etiqueta,
+                opciones: conValorGuardado(c.opciones, valor), valor,
+            });
         }
         if (c.tipo === 'area') {
             return campoArea({ id: `f_${c.id}`, etiqueta: c.etiqueta, valor, filas: 4 });
