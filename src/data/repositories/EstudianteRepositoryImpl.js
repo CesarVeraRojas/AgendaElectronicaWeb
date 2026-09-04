@@ -1,6 +1,6 @@
 import { EstudianteRepository } from '../../domain/repositories/EstudianteRepository.js';
 import {
-    comoLista, aEstudiante, desdeNuevoEstudiante, desdeAcudiente,
+    comoLista, aEstudiante, desdeNuevoEstudiante, desdeAcudiente, desdeCambiosEstudiante,
 } from '../dto/mappers.js';
 
 export class EstudianteRepositoryImpl extends EstudianteRepository {
@@ -17,6 +17,15 @@ export class EstudianteRepositoryImpl extends EstudianteRepository {
 
     async listarPorPadre(padreId) {
         return comoLista(await this.api.getEstudiantesPorPadre(padreId)).map(aEstudiante);
+    }
+
+    /** estudiantes.php devuelve la ficha completa de todos los del colegio. */
+    async listar() {
+        return comoLista(await this.api.getEstudiantes()).map(aEstudiante);
+    }
+
+    async actualizar(id, cambios) {
+        await this.api.actualizarEstudiante({ id, ...desdeCambiosEstudiante(cambios) });
     }
 
     async crear(nuevoEstudiante) {

@@ -13,6 +13,9 @@ import { Acudiente }            from '../src/domain/entities/Estudiante.js';
 import { RegistrarAsistencia }  from '../src/domain/usecases/RegistrarAsistencia.js';
 import { CrearEstudianteCompleto } from '../src/domain/usecases/CrearEstudianteCompleto.js';
 import { IniciarSesion }        from '../src/domain/usecases/IniciarSesion.js';
+import { calcularCambios, primerObligatorioVacio } from '../src/domain/usecases/_cambios.js';
+import { ActualizarPadre }      from '../src/domain/usecases/ActualizarPadre.js';
+import { ActualizarGrupo }      from '../src/domain/usecases/ActualizarGrupo.js';
 
 let ok = 0, fail = 0;
 const check = (nombre, cond, extra='') => {
@@ -26,7 +29,11 @@ const dir  = new Sesion({ userType: Rol.DIRECTOR,    userId: 1, colegioId: 1, no
 const prof = new Sesion({ userType: Rol.PROFESIONAL, userId: 2, colegioId: 1, nombres: 'Luis' });
 const pad  = new Sesion({ userType: Rol.PADRE,       userId: 3, colegioId: null, nombres: 'Eva' });
 
-check('director → 9 opciones (4 admin + 4 prof + mensajes)', menu.ejecutar(dir).length === 9,  `= ${menu.ejecutar(dir).length}`);
+check('director → 10 opciones (5 admin + 4 prof + mensajes)', menu.ejecutar(dir).length === 10, `= ${menu.ejecutar(dir).length}`);
+check('sólo el director ve Actualizar Datos',
+    menu.ejecutar(dir).some(o => o.ruta === 'actualizar-datos') &&
+    !menu.ejecutar(prof).some(o => o.ruta === 'actualizar-datos') &&
+    !menu.ejecutar(pad).some(o => o.ruta === 'actualizar-datos'));
 check('profesional → 5 opciones (4 + mensajes)',             menu.ejecutar(prof).length === 5, `= ${menu.ejecutar(prof).length}`);
 check('padre → 4 opciones (3 + mensajes)',                   menu.ejecutar(pad).length === 4,  `= ${menu.ejecutar(pad).length}`);
 check('todos ven Mensajes al final',  ['director','profesional','padre'].every(r =>
@@ -89,6 +96,65 @@ const ucLogin = new IniciarSesion({ authRepository:{ async iniciarSesion(){ thro
 let lanzo = false;
 try { await ucLogin.ejecutar('', ''); } catch(e){ lanzo = e.name === 'ValidationError'; }
 check('email/clave vacíos → ValidationError sin tocar la red', lanzo);
+
+console.log('\n── Actualización de datos: sólo se envía lo que cambió ──');
+
+const padreOriginal = {
+    id: 7, tipoDocumento: 'CC', documento: '123', nombres: 'Ana', apellidos: 'Ruiz',
+    parentesco: 'Mamá', telefono: '300', email: 'ana@x.com', direccion: 'Calle 1',
+};
+const CAMPOS_PADRE = ['tipoDocumento','documento','nombres','apellidos','parentesco','telefono','email','direccion'];
+
+check('sin tocar nada → diff vacío',
+    Object.keys(calcularCambios(padreOriginal, { ...padreOriginal }, CAMPOS_PADRE)).length === 0);
+
+check('cambiar el email → sólo viaja el email',
+    JSON.stringify(calcularCambios(padreOriginal, { ...padreOriginal, email: 'nueva@x.com' }, CAMPOS_PADRE))
+    === JSON.stringify({ email: 'nueva@x.com' }));
+
+check('los espacios sobrantes no cuentan como cambio',
+    Object.keys(calcularCambios(padreOriginal, { ...padreOriginal, nombres: '  Ana  ' }, CAMPOS_PADRE)).length === 0);
+
+check('un campo fuera de la lista permitida nunca viaja',
+    calcularCambios(padreOriginal, { ...padreOriginal, password: 'x' }, CAMPOS_PADRE).password === undefined);
+
+check('null y cadena vacía se tratan igual',
+    Object.keys(calcularCambios({ telefono: null }, { telefono: '' }, ['telefono'])).length === 0);
+
+check('detecta el primer obligatorio vacío',
+    primerObligatorioVacio({ nombres: '', apellidos: 'Ruiz' }, { nombres: 'Nombres', apellidos: 'Apellidos' }) === 'Nombres');
+
+// El repositorio se simula: el dominio no sabe que existe la red.
+const repoFalso = { llamadas: [], async actualizar(id, cambios) { this.llamadas.push({ id, cambios }); } };
+const actualizarPadre = new ActualizarPadre({ padreRepository: repoFalso });
+
+await actualizarPadre.ejecutar({ original: padreOriginal, editado: { ...padreOriginal, telefono: '301' } });
+check('ActualizarPadre manda id y sólo el campo tocado',
+    repoFalso.llamadas.length === 1 &&
+    repoFalso.llamadas[0].id === 7 &&
+    JSON.stringify(repoFalso.llamadas[0].cambios) === JSON.stringify({ telefono: '301' }));
+
+let sinCambios = false;
+try { await actualizarPadre.ejecutar({ original: padreOriginal, editado: { ...padreOriginal } }); }
+catch (e) { sinCambios = e.name === 'ValidationError'; }
+check('sin cambios → ValidationError y no se llama a la red',
+    sinCambios && repoFalso.llamadas.length === 1);
+
+let obligatorio = false;
+try { await actualizarPadre.ejecutar({ original: padreOriginal, editado: { ...padreOriginal, nombres: '' } }); }
+catch (e) { obligatorio = e.name === 'ValidationError'; }
+check('vaciar un obligatorio → ValidationError', obligatorio && repoFalso.llamadas.length === 1);
+
+// grupos.php (PUT) exige nombre_grupo siempre: aquí el diff sólo decide si se llama.
+const repoGrupo = { recibido: null, async actualizar(id, datos) { this.recibido = { id, datos }; } };
+await new ActualizarGrupo({ grupoRepository: repoGrupo }).ejecutar({
+    original: { id: 3, nombreGrupo: 'Párvulos', descripcion: 'Antigua' },
+    editado:  { nombreGrupo: 'Párvulos', descripcion: 'Nueva' },
+});
+check('ActualizarGrupo envía la ficha completa, no el diff',
+    repoGrupo.recibido.id === 3 &&
+    repoGrupo.recibido.datos.nombreGrupo === 'Párvulos' &&
+    repoGrupo.recibido.datos.descripcion === 'Nueva');
 
 console.log(`\n════════════════════\nResultado: ${ok} pasan, ${fail} fallan`);
 process.exit(fail ? 1 : 0);

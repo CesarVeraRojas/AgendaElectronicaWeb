@@ -15,6 +15,15 @@ export class GrupoRepositoryImpl extends GrupoRepository {
         return comoLista(await this.api.getGruposPorProfesional(profesionalId)).map(aGrupo);
     }
 
+    /** grupos.php (PUT) exige nombre_grupo siempre, no acepta un diff parcial. */
+    async actualizar(id, { nombreGrupo, descripcion }) {
+        await this.api.actualizarGrupo({
+            id,
+            nombre_grupo: nombreGrupo,
+            descripcion:  descripcion ?? '',
+        });
+    }
+
     async crear({ colegioId, nombreGrupo, descripcion }) {
         await this.api.crearGrupo({
             colegio_id:   colegioId,

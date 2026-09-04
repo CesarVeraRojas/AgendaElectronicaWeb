@@ -2,11 +2,22 @@
  * Estudiante — Espejo de data.EstudianteAsistencia y data.Estudiante.
  */
 export class Estudiante {
-    constructor({ id, nombres, apellidos, colegioId = null }) {
-        this.id        = id;
-        this.nombres   = nombres;
-        this.apellidos = apellidos;
-        this.colegioId = colegioId;
+    constructor({
+        id, nombres, apellidos, colegioId = null,
+        tipoDocumento = null, documento = null, fechaNacimiento = null,
+        genero = null, direccion = null, telefono = null, email = null,
+    }) {
+        this.id              = id;
+        this.nombres         = nombres;
+        this.apellidos       = apellidos;
+        this.colegioId       = colegioId;
+        this.tipoDocumento   = tipoDocumento;
+        this.documento       = documento;
+        this.fechaNacimiento = fechaNacimiento;
+        this.genero          = genero;
+        this.direccion       = direccion;
+        this.telefono        = telefono;
+        this.email           = email;
     }
 
     /** Espejo de EstudianteAsistencia.nombreCompleto */

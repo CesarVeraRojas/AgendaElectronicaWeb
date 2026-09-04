@@ -1,5 +1,5 @@
 import { ProfesionalRepository } from '../../domain/repositories/ProfesionalRepository.js';
-import { comoLista, aProfesional, desdeProfesional } from '../dto/mappers.js';
+import { comoLista, aProfesional, desdeProfesional, desdeCambiosProfesional } from '../dto/mappers.js';
 
 export class ProfesionalRepositoryImpl extends ProfesionalRepository {
     constructor({ apiDataSource }) {
@@ -9,6 +9,18 @@ export class ProfesionalRepositoryImpl extends ProfesionalRepository {
 
     async listar(colegioId) {
         return comoLista(await this.api.getProfesionales(colegioId)).map(aProfesional);
+    }
+
+    async obtener(id) {
+        const json = await this.api.getProfesional(id);
+        return aProfesional(json?.profesional ?? json?.data ?? json);
+    }
+
+    async actualizar(id, cambios) {
+        await this.api.actualizarProfesional({
+            id_profesional_a_actualizar: id,
+            ...desdeCambiosProfesional(cambios),
+        });
     }
 
     async crear(profesional) {

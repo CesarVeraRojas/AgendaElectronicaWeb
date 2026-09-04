@@ -27,6 +27,7 @@ import { FotoRepositoryImpl }         from '../data/repositories/FotoRepositoryI
 import { MensajeRepositoryImpl }      from '../data/repositories/MensajeRepositoryImpl.js';
 import { ProfesionalRepositoryImpl }  from '../data/repositories/ProfesionalRepositoryImpl.js';
 import { ColegioRepositoryImpl }      from '../data/repositories/ColegioRepositoryImpl.js';
+import { PadreRepositoryImpl }        from '../data/repositories/PadreRepositoryImpl.js';
 
 // Domain — casos de uso
 import { IniciarSesion }             from '../domain/usecases/IniciarSesion.js';
@@ -54,6 +55,14 @@ import { CrearGrupo }                from '../domain/usecases/CrearGrupo.js';
 import { CrearProfesional }          from '../domain/usecases/CrearProfesional.js';
 import { ObtenerProfesionales }      from '../domain/usecases/ObtenerProfesionales.js';
 import { AsignarProfesionalAGrupo }  from '../domain/usecases/AsignarProfesionalAGrupo.js';
+import { ListarPadres }               from '../domain/usecases/ListarPadres.js';
+import { ListarEstudiantes }          from '../domain/usecases/ListarEstudiantes.js';
+import { ActualizarPadre }            from '../domain/usecases/ActualizarPadre.js';
+import { ActualizarProfesional }      from '../domain/usecases/ActualizarProfesional.js';
+import { ActualizarEstudiante }       from '../domain/usecases/ActualizarEstudiante.js';
+import { ActualizarGrupo }            from '../domain/usecases/ActualizarGrupo.js';
+import { ObtenerPadre }               from '../domain/usecases/ObtenerPadre.js';
+import { ObtenerProfesional }         from '../domain/usecases/ObtenerProfesional.js';
 
 function construir() {
     // ── Fuentes de datos ────────────────────────────────────────
@@ -78,6 +87,7 @@ function construir() {
         mensajeRepository:      new MensajeRepositoryImpl({ apiDataSource }),
         profesionalRepository:  new ProfesionalRepositoryImpl({ apiDataSource }),
         colegioRepository:      new ColegioRepositoryImpl({ apiDataSource }),
+        padreRepository:        new PadreRepositoryImpl({ apiDataSource }),
     };
 
     // ── Casos de uso ────────────────────────────────────────────
@@ -109,6 +119,14 @@ function construir() {
             crearProfesional:           new CrearProfesional(repos),
             obtenerProfesionales:       new ObtenerProfesionales(repos),
             asignarProfesionalAGrupo:   new AsignarProfesionalAGrupo(repos),
+            listarPadres:               new ListarPadres(repos),
+            listarEstudiantes:          new ListarEstudiantes(repos),
+            actualizarPadre:            new ActualizarPadre(repos),
+            actualizarProfesional:      new ActualizarProfesional(repos),
+            actualizarEstudiante:       new ActualizarEstudiante(repos),
+            actualizarGrupo:            new ActualizarGrupo(repos),
+            obtenerPadre:               new ObtenerPadre(repos),
+            obtenerProfesional:         new ObtenerProfesional(repos),
         },
     };
 }

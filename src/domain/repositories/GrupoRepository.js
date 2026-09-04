@@ -7,4 +7,6 @@ export class GrupoRepository {
     listarPorProfesional(profesionalId) { noImplementado('GrupoRepository', 'listarPorProfesional'); }
     /** @returns {Promise<void>} */
     crear(grupo)                        { noImplementado('GrupoRepository', 'crear'); }
+    /** grupos.php PUT exige nombre y descripción completos, no un diff. @returns {Promise<void>} */
+    actualizar(id, datos)               { noImplementado('GrupoRepository', 'actualizar'); }
 }

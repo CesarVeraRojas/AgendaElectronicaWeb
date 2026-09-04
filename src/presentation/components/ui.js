@@ -111,7 +111,7 @@ export function campoSelect({ id, etiqueta, opciones = [], valor = '', placehold
         <div class="field">
             <label class="field__label" for="${id}">${etiqueta}${requerido ? ' *' : ''}</label>
             <select class="field__input field__select" id="${id}" name="${id}" ${crudo(deshabilitado ? 'disabled' : '')}>
-                <option value="">${placeholder}</option>
+                ${placeholder ? crudo(`<option value="">${esc(placeholder)}</option>`) : ''}
                 ${crudo(items)}
             </select>
         </div>`;

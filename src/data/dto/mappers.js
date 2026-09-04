@@ -14,6 +14,7 @@ import { Observacion }                from '../../domain/entities/Observacion.js
 import { AgendaDiaria }               from '../../domain/entities/AgendaDiaria.js';
 import { Mensaje, UsuarioMensaje }    from '../../domain/entities/Mensaje.js';
 import { Foto, FotosDeHijo }          from '../../domain/entities/Foto.js';
+import { Padre }                      from '../../domain/entities/Padre.js';
 
 /** Algunos endpoints devuelven listas, otros {data:[...]}; normaliza a array. */
 export function comoLista(json) {
@@ -37,10 +38,33 @@ export function aSesion(json) {
 
 export function aEstudiante(j) {
     return new Estudiante({
-        id:        j.id,
-        nombres:   j.nombres,
-        apellidos: j.apellidos,
-        colegioId: j.colegio_id ?? null,
+        id:              j.id,
+        nombres:         j.nombres,
+        apellidos:       j.apellidos,
+        colegioId:       j.colegio_id ?? null,
+        // estudiantes.php devuelve la ficha completa; los endpoints por grupo
+        // o por padre sólo el nombre, y entonces estos quedan en null.
+        tipoDocumento:   j.tipo_documento ?? null,
+        documento:       j.documento ?? null,
+        fechaNacimiento: j.fecha_nacimiento ?? null,
+        genero:          j.genero ?? null,
+        direccion:       j.direccion ?? null,
+        telefono:        j.telefono ?? null,
+        email:           j.email ?? null,
+    });
+}
+
+export function aPadre(j) {
+    return new Padre({
+        id:            j.id,
+        tipoDocumento: j.tipo_documento ?? null,
+        documento:     j.documento ?? null,
+        nombres:       j.nombres ?? '',
+        apellidos:     j.apellidos ?? '',
+        parentesco:    j.parentesco ?? null,
+        telefono:      j.telefono ?? null,
+        email:         j.email ?? null,
+        direccion:     j.direccion ?? null,
     });
 }
 
@@ -54,11 +78,13 @@ export function aGrupo(j) {
 
 export function aProfesional(j) {
     return new Profesional({
-        id:        j.id,
-        nombres:   j.nombres,
-        apellidos: j.apellidos,
-        email:     j.email ?? null,
-        documento: j.documento ?? null,
+        id:            j.id,
+        nombres:       j.nombres,
+        apellidos:     j.apellidos,
+        email:         j.email ?? null,
+        documento:     j.documento ?? null,
+        tipoDocumento: j.tipo_documento ?? null,
+        telefono:      j.telefono ?? null,
     });
 }
 
@@ -212,3 +238,41 @@ export function desdeProfesional(p) {
         password:       p.password,
     };
 }
+
+
+/**
+ * Traducción de los diffs de actualización: nombre de dominio → columna del PHP.
+ * Se listan sólo los campos que cada endpoint declara actualizables, así un
+ * campo de más en el formulario nunca llega al backend.
+ */
+const COLUMNAS_PADRE = {
+    tipoDocumento: 'tipo_documento', documento: 'documento',
+    nombres: 'nombres', apellidos: 'apellidos', parentesco: 'parentesco',
+    telefono: 'telefono', email: 'email', direccion: 'direccion',
+};
+
+const COLUMNAS_PROFESIONAL = {
+    tipoDocumento: 'tipo_documento', documento: 'documento',
+    nombres: 'nombres', apellidos: 'apellidos',
+    telefono: 'telefono', email: 'email',
+};
+
+const COLUMNAS_ESTUDIANTE = {
+    tipoDocumento: 'tipo_documento', documento: 'documento',
+    nombres: 'nombres', apellidos: 'apellidos',
+    fechaNacimiento: 'fecha_nacimiento', genero: 'genero',
+    direccion: 'direccion', telefono: 'telefono', email: 'email',
+};
+
+function aColumnas(cambios, columnas) {
+    const salida = {};
+    for (const [campo, valor] of Object.entries(cambios)) {
+        const columna = columnas[campo];
+        if (columna) salida[columna] = valor;
+    }
+    return salida;
+}
+
+export const desdeCambiosPadre       = (c) => aColumnas(c, COLUMNAS_PADRE);
+export const desdeCambiosProfesional = (c) => aColumnas(c, COLUMNAS_PROFESIONAL);
+export const desdeCambiosEstudiante  = (c) => aColumnas(c, COLUMNAS_ESTUDIANTE);

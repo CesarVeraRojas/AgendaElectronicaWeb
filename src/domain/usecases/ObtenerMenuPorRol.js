@@ -22,6 +22,7 @@ export class ObtenerMenuPorRol {
             opciones.push(new OpcionMenu({ texto: 'Crear Grupo',           icono: 'group_add',      ruta: 'crear-grupo',               color: 'secondary' }));
             opciones.push(new OpcionMenu({ texto: 'Crear Profesional',     icono: 'badge',          ruta: 'crear-profesional',         color: 'tertiary'  }));
             opciones.push(new OpcionMenu({ texto: 'Asignar Prof. a Grupo', icono: 'assignment_ind', ruta: 'asignar-profesional-grupo', color: 'primary'   }));
+            opciones.push(new OpcionMenu({ texto: 'Actualizar Datos',      icono: 'manage_accounts', ruta: 'actualizar-datos',           color: 'secondary' }));
         }
 
         if (rol === Rol.PROFESIONAL || rol === Rol.DIRECTOR) {

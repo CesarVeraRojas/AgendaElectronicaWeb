@@ -101,6 +101,25 @@ export class HttpClient {
     }
 
     /**
+     * PUT con cuerpo JSON. Sólo `grupos.php` despacha por método; el resto de
+     * endpoints de actualización aceptan POST. El CORS ya lo permite:
+     * helpers.php envía `Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS`.
+     */
+    async put(endpoint, body = {}) {
+        const s = this.proveedorDeSesion?.();
+        const cuerpo = { ...body };
+        if (s?.userId) {
+            cuerpo.user_id   = s.userId;
+            cuerpo.user_type = s.userType;
+        }
+        return this._enviar(this.baseUrl + endpoint, {
+            method:  'PUT',
+            headers: { 'Content-Type': 'application/json', ...this._authHeaders() },
+            body:    JSON.stringify(cuerpo),
+        });
+    }
+
+    /**
      * POST multipart — NO fija Content-Type a propósito:
      * el navegador debe generar el boundary.
      */

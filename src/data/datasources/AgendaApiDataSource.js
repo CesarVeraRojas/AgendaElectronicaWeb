@@ -19,18 +19,30 @@ export class AgendaApiDataSource {
     getGrupos(colegioId)                { return this.http.get('grupos.php', colegioId != null ? { colegio_id: colegioId } : {}); }
     getGruposPorProfesional(profId)     { return this.http.get('get_grupos_por_profesional.php', { profesional_id: profId }); }
     crearGrupo(grupo)                   { return this.http.post('grupos.php', grupo); }
+    /** grupos.php despacha por método: la actualización va por PUT. */
+    actualizarGrupo(grupo)              { return this.http.put('grupos.php', grupo); }
 
     // ── Estudiantes ─────────────────────────────────────────────
     getEstudiantesPorGrupo(grupoId)     { return this.http.get('estudiantes_por_grupo.php', { grupo_id: grupoId }); }
     getEstudiantesPorPadre(padreId)     { return this.http.get('get_estudiantes_por_padre.php', { padre_id: padreId }); }
+    getEstudiantes()                    { return this.http.get('estudiantes.php'); }
     crearEstudiante(estudiante)         { return this.http.post('agregar_estudiante.php', estudiante); }
+    /** editar_estudiante.php no valida REQUEST_METHOD: acepta POST con cuerpo JSON. */
+    actualizarEstudiante(cuerpo)        { return this.http.post('editar_estudiante.php', cuerpo); }
     crearPadre(padre)                   { return this.http.post('agregar_padre.php', padre); }
+
+    // ── Acudientes ya registrados ───────────────────────────────
+    getPadres()                         { return this.http.get('listar_padres.php'); }
+    getPadre(id)                        { return this.http.get('obtener_padre.php', { id }); }
+    actualizarPadre(cuerpo)             { return this.http.post('actualizar_padre.php', cuerpo); }
     asignarPadres(asignacion)           { return this.http.post('estudiante_padre.php', asignacion); }
     asignarGrupo(asignacion)            { return this.http.post('asignar_estudiante_grupo.php', asignacion); }
 
     // ── Profesionales ───────────────────────────────────────────
     getProfesionales(colegioId)         { return this.http.get('listar_profesionales.php', colegioId != null ? { colegio_id: colegioId } : {}); }
+    getProfesional(id)                  { return this.http.get('obtener_profesional.php', { id }); }
     crearProfesional(profesional)       { return this.http.post('crear_profesional.php', profesional); }
+    actualizarProfesional(cuerpo)       { return this.http.post('actualizar_profesional.php', cuerpo); }
     asignarGruposAProfesional(asig)     { return this.http.post('asignar_profesional_grupo.php', asig); }
 
     // ── Asistencia ──────────────────────────────────────────────
