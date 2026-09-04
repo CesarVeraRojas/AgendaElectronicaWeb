@@ -6,6 +6,7 @@
  * ObtenerMenuPorRol, que replica la lógica de roles de MenuScreen.kt.
  */
 import { Casos }           from '../../core/container.js';
+import { Rol }             from '../../domain/entities/Sesion.js';
 import { navegar }         from '../router/index.js';
 import { html, esc, crudo }from '../components/html.js';
 import { topBar }          from '../components/ui.js';
@@ -56,14 +57,34 @@ export async function init() {
 
     // Pie con datos del colegio — sólo para padre y profesional (regla de MenuScreen.kt)
     const pie = document.getElementById('menu-footer');
-    if (pie && sesion?.colegioId) {
-        try {
-            const colegio = await Casos.obtenerColegio.ejecutar(sesion.colegioId);
-            pie.innerHTML = html`
-                <p class="menu-footer__name">${colegio.nombre}</p>
-                <p class="menu-footer__addr">${colegio.direccion}</p>`;
-        } catch (e) {
-            pie.innerHTML = html`<p class="menu-footer__addr">No se pudieron cargar los datos del colegio.</p>`;
+    if (!pie) return;
+
+    try {
+        const colegioId = await resolverColegioId(sesion);
+        if (!colegioId) {
+            pie.hidden = true;          // sin colegio no se pinta un recuadro vacío
+            return;
         }
+        const colegio = await Casos.obtenerColegio.ejecutar(colegioId);
+        pie.innerHTML = html`
+            <p class="menu-footer__name">${colegio.nombre}</p>
+            <p class="menu-footer__addr">${colegio.direccion}</p>`;
+    } catch (e) {
+        pie.innerHTML = html`<p class="menu-footer__addr">No se pudieron cargar los datos del colegio.</p>`;
     }
+}
+
+/**
+ * Espejo de la primera mitad de MenuViewModel.fetchColegioDetails().
+ *
+ * `login.php` selecciona `NULL as colegio_id` para los padres (línea 78), así que la
+ * sesión de un padre nunca trae colegio. Android lo resuelve pidiendo sus hijos y
+ * tomando el colegio del primero; aquí se hace igual.
+ */
+async function resolverColegioId(sesion) {
+    if (sesion?.colegioId) return sesion.colegioId;
+    if (sesion?.userType !== Rol.PADRE) return null;
+
+    const hijos = await Casos.obtenerHijos.ejecutar(sesion);
+    return hijos.find(h => h.colegioId)?.colegioId ?? null;
 }
