@@ -21,6 +21,20 @@ export function comoLista(json) {
     if (Array.isArray(json)) return json;
     if (Array.isArray(json?.data)) return json.data;
     if (Array.isArray(json?.estudiantes)) return json.estudiantes;
+
+    // `respondWithSuccess($filas)` hace `array_merge(["success"=>true], $filas)`.
+    // Cuando $filas es una lista, sus índices 0,1,2… sobreviven como claves y el
+    // conjunto deja de ser un array PHP: json_encode escupe un OBJETO
+    //     {"success":true,"0":{…},"1":{…}}
+    // en vez de un array. Le pasa a listar_padres.php y a estudiantes.php;
+    // listar_profesionales.php no, porque usa json_response($filas) directamente.
+    if (json && typeof json === 'object') {
+        const filas = Object.keys(json)
+            .filter(k => /^\d+$/.test(k))
+            .sort((a, b) => Number(a) - Number(b))
+            .map(k => json[k]);
+        if (filas.length) return filas;
+    }
     return [];
 }
 
