@@ -8,7 +8,7 @@
 import { Sesion, Rol }          from '../src/domain/entities/Sesion.js';
 import { ObtenerMenuPorRol }    from '../src/domain/usecases/ObtenerMenuPorRol.js';
 import { PrepararRespuesta }    from '../src/domain/usecases/PrepararRespuesta.js';
-import { Mensaje }              from '../src/domain/entities/Mensaje.js';
+import { Mensaje, DestinatarioLectura, resumirLectura } from '../src/domain/entities/Mensaje.js';
 import { Acudiente }            from '../src/domain/entities/Estudiante.js';
 import { RegistrarAsistencia }  from '../src/domain/usecases/RegistrarAsistencia.js';
 import { EstadoAsistencia, resumirAsistencia } from '../src/domain/entities/Asistencia.js';
@@ -18,6 +18,7 @@ import { IniciarSesion }        from '../src/domain/usecases/IniciarSesion.js';
 import { calcularCambios, primerObligatorioVacio } from '../src/domain/usecases/_cambios.js';
 import { ActualizarPadre }      from '../src/domain/usecases/ActualizarPadre.js';
 import { ActualizarGrupo }      from '../src/domain/usecases/ActualizarGrupo.js';
+import { ObtenerEstadoLectura } from '../src/domain/usecases/ObtenerEstadoLectura.js';
 
 let ok = 0, fail = 0;
 const check = (nombre, cond, extra='') => {
@@ -182,6 +183,45 @@ check('cuenta los tres estados', resumen.asistio === 2 && resumen.tarde === 1 &&
 check('el total es la suma de los tres', resumen.total === 4);
 check('un estado desconocido no se cuenta', resumirAsistencia([{ estado: 'RARO' }]).total === 0);
 check('lista vacía → todo a cero', resumirAsistencia([]).total === 0);
+
+console.log('\n── Estado de lectura de un mensaje enviado (BL-46) ──');
+
+const destinatario = (nombre, leido) => new DestinatarioLectura({
+    mensajeId: 1, destinatarioId: 1, destinatarioType: 'padre', nombre, leido,
+});
+
+check('leido = 1 cuenta como leído',   destinatario('Luisa', 1).haLeido() === true);
+check('leido = 0 cuenta como no leído', destinatario('Jorge', 0).haLeido() === false);
+check('el "1" que manda el PHP como cadena también cuenta',
+    destinatario('Carlos', '1').haLeido() === true);
+
+const lectura = resumirLectura([destinatario('Luisa', 1), destinatario('Jorge', 0), destinatario('Carlos', 0)]);
+check('cuenta los leídos', lectura.leidos === 1 && lectura.total === 3);
+check('cuenta los que faltan', lectura.pendientes === 2);
+check('no da por leído lo que no lo está', lectura.todosLeidos === false);
+
+const todos = resumirLectura([destinatario('Luisa', 1), destinatario('Jorge', 1)]);
+check('todos leídos', todos.todosLeidos === true && todos.pendientes === 0);
+check('lista vacía no es "todos leídos"', resumirLectura([]).todosLeidos === false);
+check('lista vacía suma cero', resumirLectura([]).total === 0);
+
+const estadoLectura = new ObtenerEstadoLectura({ mensajeRepository: null });
+const mio = new Mensaje({ id: 5, remitenteId: 7, remitenteType: 'profesional', asunto: 'a', mensaje: 'b' });
+const ajeno = new Mensaje({ id: 6, remitenteId: 9, remitenteType: 'profesional', asunto: 'a', mensaje: 'b' });
+const yo = new Sesion({ userType: 'profesional', userId: 7, colegioId: 1, nombres: 'Marta' });
+
+check('reconoce mi propio mensaje', estadoLectura.esRemitente(mio, yo) === true);
+check('el id que llega como cadena también casa',
+    estadoLectura.esRemitente(new Mensaje({ id: 5, remitenteId: '7', remitenteType: 'profesional', asunto: 'a', mensaje: 'b' }), yo) === true);
+check('un mensaje de otra persona no es mío', estadoLectura.esRemitente(ajeno, yo) === false);
+check('mismo id pero otro rol no es mío',
+    estadoLectura.esRemitente(new Mensaje({ id: 5, remitenteId: 7, remitenteType: 'director', asunto: 'a', mensaje: 'b' }), yo) === false);
+check('sin sesión no es mío', estadoLectura.esRemitente(mio, null) === false);
+
+check('en Enviados, leido = 1 marca la tarjeta como leída',
+    new Mensaje({ id: 1, leido: 1, asunto: 'a', mensaje: 'b' }).leidoPorDestinatario() === true);
+check('en Enviados, leido = 0 la deja sin leer',
+    new Mensaje({ id: 1, leido: 0, asunto: 'a', mensaje: 'b' }).leidoPorDestinatario() === false);
 
 console.log(`\n════════════════════\nResultado: ${ok} pasan, ${fail} fallan`);
 process.exit(fail ? 1 : 0);

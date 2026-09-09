@@ -13,7 +13,7 @@ import { Colegio }                    from '../../domain/entities/Colegio.js';
 import { Observacion }                from '../../domain/entities/Observacion.js';
 import { AsistenciaRegistrada }       from '../../domain/entities/Asistencia.js';
 import { AgendaDiaria }               from '../../domain/entities/AgendaDiaria.js';
-import { Mensaje, UsuarioMensaje }    from '../../domain/entities/Mensaje.js';
+import { Mensaje, UsuarioMensaje, DestinatarioLectura } from '../../domain/entities/Mensaje.js';
 import { Foto, FotosDeHijo }          from '../../domain/entities/Foto.js';
 import { Padre }                      from '../../domain/entities/Padre.js';
 
@@ -194,6 +194,16 @@ export function aMensaje(j) {
         remitenteNombre:    j.remitente_nombre ?? null,
         destinatarioNombre: j.destinatario_nombre ?? null,
         adjuntoUrl:         j.adjunto_url ?? null,
+    });
+}
+
+export function aDestinatarioLectura(j) {
+    return new DestinatarioLectura({
+        mensajeId:        j.id,
+        destinatarioId:   j.destinatario_id,
+        destinatarioType: j.destinatario_type,
+        nombre:           j.destinatario_nombre ?? 'Desconocido',
+        leido:            j.leido,
     });
 }
 

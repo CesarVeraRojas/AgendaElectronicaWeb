@@ -9,4 +9,6 @@ export class MensajeRepository {
     enviar(nuevoMensaje, remitente)   { noImplementado('MensajeRepository', 'enviar'); }
     /** @returns {Promise<void>} */
     marcarLeido(mensajeId)            { noImplementado('MensajeRepository', 'marcarLeido'); }
+    /** @returns {Promise<DestinatarioLectura[]>} */
+    estadoDeLectura(mensajeId)        { noImplementado('MensajeRepository', 'estadoDeLectura'); }
 }

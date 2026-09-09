@@ -9,7 +9,7 @@
  * json_encode devuelve un OBJETO `{"success":true,"0":{…},"1":{…}}`.
  * Las listas de acudientes y estudiantes salían vacías por esto.
  */
-import { comoLista, aAsistenciaDeHijo } from '../src/data/dto/mappers.js';
+import { comoLista, aAsistenciaDeHijo, aDestinatarioLectura } from '../src/data/dto/mappers.js';
 
 let ok = 0, fail = 0;
 const check = (nombre, cond, extra = '') => {
@@ -54,6 +54,21 @@ check('mapea los dos registros', registros.length === 2);
 check('traduce profesional_nombre', registros[0].profesionalNombre === 'Luis Gómez');
 check('etiqueta legible del estado', registros[0].etiquetaEstado === 'Tarde');
 check('sin profesional → null', aAsistenciaDeHijo({ id: 1, fecha: '2026-09-01', estado: 'AUSENTE' }).profesionalNombre === null);
+
+console.log('\n── aDestinatarioLectura(): estado de lectura (BL-46) ──');
+
+const filaLectura = aDestinatarioLectura({
+    id: 12, destinatario_id: 30, destinatario_type: 'padre',
+    destinatario_nombre: 'Luisa Peña', leido: 1,
+});
+check('traduce el id del mensaje', filaLectura.mensajeId === 12);
+check('traduce destinatario y tipo', filaLectura.destinatarioId === 30 && filaLectura.destinatarioType === 'padre');
+check('traduce el nombre', filaLectura.nombre === 'Luisa Peña');
+check('interpreta el estado de lectura', filaLectura.haLeido() === true);
+check('sin nombre resuelto queda "Desconocido"',
+    aDestinatarioLectura({ id: 1, destinatario_id: 2, destinatario_type: 'padre', leido: 0 }).nombre === 'Desconocido');
+check('la lista del endpoint viene pelada y comoLista la respeta',
+    comoLista([{ id: 1, leido: 0 }, { id: 2, leido: 1 }]).map(aDestinatarioLectura).length === 2);
 
 console.log(`\n════════════════════\nResultado: ${ok} pasan, ${fail} fallan`);
 process.exit(fail ? 1 : 0);

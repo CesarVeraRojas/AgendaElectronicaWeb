@@ -204,6 +204,18 @@ body {
 .msg-card__clip { color: var(--on-surface-variant); font-size: 20px !important; }
 .msg-body { white-space: pre-wrap; line-height: 1.6; }
 
+/* Acuse de lectura: en la bandeja de Enviados y en el detalle del mensaje. */
+.msg-card__read { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; font-size: 12px; color: var(--on-surface-variant); }
+.msg-card__read .material-icons { font-size: 16px !important; }
+.msg-card__read--done { color: var(--primary-dark); }
+.read-summary { margin: 0 0 var(--sp-sm); font-weight: 600; }
+.read-row { display: flex; align-items: center; gap: var(--sp-sm); padding: 6px 0; border-top: 1px solid var(--surface-variant); }
+.read-row:first-of-type { border-top: none; }
+.read-row__icon { font-size: 18px !important; color: var(--on-surface-variant); }
+.read-row__icon--done { color: var(--primary-dark); }
+.read-row__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.read-row__state { font-size: 12px; color: var(--on-surface-variant); }
+
 .attachment { display: flex; align-items: center; gap: var(--sp-sm); padding: var(--sp-sm); background: var(--surface-variant); border-radius: var(--radius-md); }
 .attachment__name { flex: 1; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .attachment__remove { background: none; border: 0; color: var(--error-dark); cursor: pointer; display: grid; place-items: center; }

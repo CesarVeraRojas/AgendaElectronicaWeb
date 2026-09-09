@@ -33,6 +33,44 @@ export class Mensaje {
     tieneAdjunto() {
         return Boolean(this.adjuntoUrl);
     }
+
+    /** En la bandeja de Enviados: si el destinatario de esta fila ya lo abrió. */
+    leidoPorDestinatario() {
+        return Number(this.leido) === 1;
+    }
+}
+
+/**
+ * Estado de lectura de un destinatario de un envío.
+ *
+ * El backend guarda una fila por destinatario, así que un mensaje enviado a
+ * tres personas tiene tres estados independientes.
+ */
+export class DestinatarioLectura {
+    constructor({ mensajeId, destinatarioId, destinatarioType, nombre, leido }) {
+        this.mensajeId        = mensajeId;
+        this.destinatarioId   = destinatarioId;
+        this.destinatarioType = destinatarioType;
+        this.nombre           = nombre;
+        this.leido            = leido;
+    }
+
+    /** `leido` llega del PHP como 0/1, a veces en forma de cadena. */
+    haLeido() {
+        return Number(this.leido) === 1;
+    }
+}
+
+/** Cuántos de los destinatarios han leído el mensaje. */
+export function resumirLectura(destinatarios = []) {
+    const total  = destinatarios.length;
+    const leidos = destinatarios.filter(d => d.haLeido()).length;
+    return {
+        total,
+        leidos,
+        pendientes:  total - leidos,
+        todosLeidos: total > 0 && leidos === total,
+    };
 }
 
 export class UsuarioMensaje {

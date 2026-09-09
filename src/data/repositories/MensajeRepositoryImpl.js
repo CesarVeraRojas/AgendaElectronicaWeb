@@ -1,5 +1,5 @@
 import { MensajeRepository } from '../../domain/repositories/MensajeRepository.js';
-import { comoLista, aMensaje, aUsuarioMensaje } from '../dto/mappers.js';
+import { comoLista, aMensaje, aUsuarioMensaje, aDestinatarioLectura } from '../dto/mappers.js';
 
 export class MensajeRepositoryImpl extends MensajeRepository {
     constructor({ apiDataSource }) {
@@ -46,5 +46,9 @@ export class MensajeRepositoryImpl extends MensajeRepository {
 
     async marcarLeido(mensajeId) {
         await this.api.marcarMensajeLeido(mensajeId);
+    }
+
+    async estadoDeLectura(mensajeId) {
+        return comoLista(await this.api.getEstadoLectura(mensajeId)).map(aDestinatarioLectura);
     }
 }

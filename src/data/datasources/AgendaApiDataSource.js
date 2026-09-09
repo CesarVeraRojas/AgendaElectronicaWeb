@@ -86,6 +86,7 @@ export class AgendaApiDataSource {
     }
 
     marcarMensajeLeido(mensajeId)       { return this.http.post('marcar_mensaje_leido.php', { mensaje_id: mensajeId }); }
+    getEstadoLectura(mensajeId)         { return this.http.get('get_estado_lectura.php', { mensaje_id: mensajeId }); }
 
     // ── Colegio ─────────────────────────────────────────────────
     getColegioDetails(colegioId)        { return this.http.get('get_colegio_details.php', { colegio_id: colegioId }); }

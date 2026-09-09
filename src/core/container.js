@@ -45,6 +45,7 @@ import { ObtenerMensajes }           from '../domain/usecases/ObtenerMensajes.js
 import { ObtenerDestinatarios }      from '../domain/usecases/ObtenerDestinatarios.js';
 import { EnviarMensaje }             from '../domain/usecases/EnviarMensaje.js';
 import { MarcarMensajeLeido }        from '../domain/usecases/MarcarMensajeLeido.js';
+import { ObtenerEstadoLectura }     from '../domain/usecases/ObtenerEstadoLectura.js';
 import { PrepararRespuesta }         from '../domain/usecases/PrepararRespuesta.js';
 import { ObtenerHijos }              from '../domain/usecases/ObtenerHijos.js';
 import { ObtenerAgendaDeHijo }       from '../domain/usecases/ObtenerAgendaDeHijo.js';
@@ -110,6 +111,7 @@ function construir() {
             obtenerDestinatarios:       new ObtenerDestinatarios(repos),
             enviarMensaje:              new EnviarMensaje(repos),
             marcarMensajeLeido:         new MarcarMensajeLeido(repos),
+            obtenerEstadoLectura:       new ObtenerEstadoLectura(repos),
             prepararRespuesta:          new PrepararRespuesta(),
             obtenerHijos:               new ObtenerHijos(repos),
             obtenerAgendaDeHijo:        new ObtenerAgendaDeHijo(repos),

@@ -5,6 +5,7 @@
  * Réplica de las reglas de la app:
  *   - Pestañas Recibidos / Enviados.
  *   - Sólo los recibidos pueden aparecer como no leídos (negrita + punto azul).
+ *   - En Enviados, cada tarjeta dice si ese destinatario ya lo leyó (BL-46).
  *   - Al volver del detalle la lista se recarga, para que el mensaje recién
  *     leído deje de figurar como no leído (corrección hecha en Android).
  */
@@ -38,12 +39,18 @@ function tarjetaMensaje(mensaje, esRecibida) {
         ? `De: ${mensaje.remitenteNombre ?? 'Desconocido'}`
         : `Para: ${mensaje.destinatarioNombre ?? 'Desconocido'}`;
 
+    // En Enviados el dato de lectura es del destinatario, no mío.
+    const acuse = esRecibida ? '' : (mensaje.leidoPorDestinatario()
+        ? '<span class="msg-card__read msg-card__read--done"><span class="material-icons">done_all</span>Leído</span>'
+        : '<span class="msg-card__read"><span class="material-icons">schedule</span>Sin leer</span>');
+
     return html`
         <article class="msg-card${noLeido ? ' msg-card--unread' : ''}" data-id="${mensaje.id}">
             <div class="msg-card__body">
                 <p class="msg-card__who">${quien}</p>
                 <p class="msg-card__subject">${mensaje.asunto}</p>
                 <p class="msg-card__date">${fechaHora(mensaje.fechaEnvio)}</p>
+                ${crudo(acuse)}
             </div>
             ${crudo(mensaje.tieneAdjunto() ? '<span class="material-icons msg-card__clip">attach_file</span>' : '')}
             ${crudo(noLeido ? '<span class="msg-card__dot" aria-label="No leído"></span>' : '')}
