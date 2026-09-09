@@ -26,6 +26,7 @@ const RUTAS = {
     'agenda-diaria-hijo':        () => import('../pages/agenda-diaria-hijo.page.js'),
     'observaciones-hijo':        () => import('../pages/observaciones-hijo.page.js'),
     'fotos-hijo':                () => import('../pages/fotos-hijo.page.js'),
+    'asistencia-hijo':           () => import('../pages/asistencia-hijo.page.js'),
     'crear-estudiante':          () => import('../pages/crear-estudiante.page.js'),
     'crear-grupo':               () => import('../pages/crear-grupo.page.js'),
     'crear-profesional':         () => import('../pages/crear-profesional.page.js'),

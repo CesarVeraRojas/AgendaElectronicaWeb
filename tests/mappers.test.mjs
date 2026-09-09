@@ -9,7 +9,7 @@
  * json_encode devuelve un OBJETO `{"success":true,"0":{…},"1":{…}}`.
  * Las listas de acudientes y estudiantes salían vacías por esto.
  */
-import { comoLista } from '../src/data/dto/mappers.js';
+import { comoLista, aAsistenciaDeHijo } from '../src/data/dto/mappers.js';
 
 let ok = 0, fail = 0;
 const check = (nombre, cond, extra = '') => {
@@ -41,6 +41,19 @@ check('{estudiantes:[...]}', comoLista({ estudiantes: [{ id: 1 }, { id: 2 }] }).
 check('objeto sin índices numéricos → vacío',
     comoLista({ success: true, colegio: { nombre: 'x' } }).length === 0);
 check('null / undefined → vacío', comoLista(null).length === 0 && comoLista(undefined).length === 0);
+
+console.log('\n── aAsistenciaDeHijo(): get_asistencias_por_hijo.php ──');
+
+// El endpoint responde con json_response($filas): array pelado.
+const filas = [
+    { id: 9, fecha: '2026-09-03', estado: 'TARDE',   profesional_nombre: 'Luis Gómez' },
+    { id: 8, fecha: '2026-09-02', estado: 'ASISTIO', profesional_nombre: 'Profesional Desconocido' },
+];
+const registros = comoLista(filas).map(aAsistenciaDeHijo);
+check('mapea los dos registros', registros.length === 2);
+check('traduce profesional_nombre', registros[0].profesionalNombre === 'Luis Gómez');
+check('etiqueta legible del estado', registros[0].etiquetaEstado === 'Tarde');
+check('sin profesional → null', aAsistenciaDeHijo({ id: 1, fecha: '2026-09-01', estado: 'AUSENTE' }).profesionalNombre === null);
 
 console.log(`\n════════════════════\nResultado: ${ok} pasan, ${fail} fallan`);
 process.exit(fail ? 1 : 0);

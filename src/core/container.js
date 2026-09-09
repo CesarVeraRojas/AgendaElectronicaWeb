@@ -49,6 +49,7 @@ import { PrepararRespuesta }         from '../domain/usecases/PrepararRespuesta.
 import { ObtenerHijos }              from '../domain/usecases/ObtenerHijos.js';
 import { ObtenerAgendaDeHijo }       from '../domain/usecases/ObtenerAgendaDeHijo.js';
 import { ObtenerObservacionesDeHijo }from '../domain/usecases/ObtenerObservacionesDeHijo.js';
+import { ObtenerAsistenciaDeHijo }   from '../domain/usecases/ObtenerAsistenciaDeHijo.js';
 import { ObtenerFotosDeHijos }       from '../domain/usecases/ObtenerFotosDeHijos.js';
 import { CrearEstudianteCompleto }   from '../domain/usecases/CrearEstudianteCompleto.js';
 import { CrearGrupo }                from '../domain/usecases/CrearGrupo.js';
@@ -113,6 +114,7 @@ function construir() {
             obtenerHijos:               new ObtenerHijos(repos),
             obtenerAgendaDeHijo:        new ObtenerAgendaDeHijo(repos),
             obtenerObservacionesDeHijo: new ObtenerObservacionesDeHijo(repos),
+            obtenerAsistenciaDeHijo:    new ObtenerAsistenciaDeHijo(repos),
             obtenerFotosDeHijos:        new ObtenerFotosDeHijos(repos),
             crearEstudianteCompleto:    new CrearEstudianteCompleto(repos),
             crearGrupo:                 new CrearGrupo(repos),

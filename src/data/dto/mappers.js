@@ -11,6 +11,7 @@ import { Grupo }                      from '../../domain/entities/Grupo.js';
 import { Profesional }                from '../../domain/entities/Profesional.js';
 import { Colegio }                    from '../../domain/entities/Colegio.js';
 import { Observacion }                from '../../domain/entities/Observacion.js';
+import { AsistenciaRegistrada }       from '../../domain/entities/Asistencia.js';
 import { AgendaDiaria }               from '../../domain/entities/AgendaDiaria.js';
 import { Mensaje, UsuarioMensaje }    from '../../domain/entities/Mensaje.js';
 import { Foto, FotosDeHijo }          from '../../domain/entities/Foto.js';
@@ -115,6 +116,15 @@ export function aObservacion(j) {
         observacion:       j.observacion,
         fecha:             j.fecha,
         tipo:              j.tipo ?? null,
+        profesionalNombre: j.profesional_nombre ?? null,
+    });
+}
+
+export function aAsistenciaDeHijo(j) {
+    return new AsistenciaRegistrada({
+        id:                j.id,
+        fecha:             j.fecha,
+        estado:            j.estado,
         profesionalNombre: j.profesional_nombre ?? null,
     });
 }

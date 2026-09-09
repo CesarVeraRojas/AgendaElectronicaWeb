@@ -1,4 +1,5 @@
 import { AsistenciaRepository } from '../../domain/repositories/AsistenciaRepository.js';
+import { comoLista, aAsistenciaDeHijo } from '../dto/mappers.js';
 
 export class AsistenciaRepositoryImpl extends AsistenciaRepository {
     constructor({ apiDataSource }) {
@@ -13,5 +14,9 @@ export class AsistenciaRepositoryImpl extends AsistenciaRepository {
             estado:         registro.estado,
             registrado_por: registro.registradoPor,
         });
+    }
+
+    async listarPorHijo(estudianteId, desde, hasta) {
+        return comoLista(await this.api.getAsistenciasPorHijo(estudianteId, desde, hasta)).map(aAsistenciaDeHijo);
     }
 }

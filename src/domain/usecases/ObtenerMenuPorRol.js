@@ -7,7 +7,7 @@ import { Rol }        from '../entities/Sesion.js';
  * Reglas replicadas:
  *   director    → 4 opciones de administración + las 4 de profesional
  *   profesional → 4 opciones (Asistencia, Observaciones, Agenda Diaria, Fotos)
- *   padre       → 3 opciones (Agenda, Observaciones, Fotos de su hijo)
+ *   padre       → 4 opciones (Agenda, Observaciones, Fotos y Asistencia de su hijo)
  *   todos       → Mensajes al final
  */
 export class ObtenerMenuPorRol {
@@ -36,6 +36,7 @@ export class ObtenerMenuPorRol {
             opciones.push(new OpcionMenu({ texto: 'Agenda Diaria', icono: 'calendar_today', ruta: 'agenda-diaria-hijo',  color: 'primary'   }));
             opciones.push(new OpcionMenu({ texto: 'Observaciones', icono: 'edit_note',      ruta: 'observaciones-hijo',  color: 'secondary' }));
             opciones.push(new OpcionMenu({ texto: 'Fotos',         icono: 'photo_camera',   ruta: 'fotos-hijo',          color: 'tertiary'  }));
+            opciones.push(new OpcionMenu({ texto: 'Asistencia',    icono: 'check_circle',   ruta: 'asistencia-hijo',     color: 'primary'   }));
         }
 
         opciones.push(new OpcionMenu({ texto: 'Mensajes', icono: 'email', ruta: 'mensajes', color: 'tertiary' }));

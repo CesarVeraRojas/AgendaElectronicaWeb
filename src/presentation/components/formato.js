@@ -41,6 +41,11 @@ export function fechaHora(texto) {
     return `${fechaCorta(texto)} ${hh}:${mi}`;
 }
 
+/** (2026, 3) → "marzo de 2026". `mes` va de 1 a 12. */
+export function mesYAnio(anio, mes) {
+    return `${MESES[mes - 1] ?? ''} de ${anio}`;
+}
+
 /** Fecha de hoy en el formato que espera el backend: "YYYY-MM-DD". */
 export function hoyIso() {
     const d = new Date();

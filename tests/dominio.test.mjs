@@ -11,6 +11,8 @@ import { PrepararRespuesta }    from '../src/domain/usecases/PrepararRespuesta.j
 import { Mensaje }              from '../src/domain/entities/Mensaje.js';
 import { Acudiente }            from '../src/domain/entities/Estudiante.js';
 import { RegistrarAsistencia }  from '../src/domain/usecases/RegistrarAsistencia.js';
+import { EstadoAsistencia, resumirAsistencia } from '../src/domain/entities/Asistencia.js';
+import { rangoDelMes, mesAnterior, mesSiguiente } from '../src/domain/usecases/ObtenerAsistenciaDeHijo.js';
 import { CrearEstudianteCompleto } from '../src/domain/usecases/CrearEstudianteCompleto.js';
 import { IniciarSesion }        from '../src/domain/usecases/IniciarSesion.js';
 import { calcularCambios, primerObligatorioVacio } from '../src/domain/usecases/_cambios.js';
@@ -35,7 +37,13 @@ check('sólo el director ve Actualizar Datos',
     !menu.ejecutar(prof).some(o => o.ruta === 'actualizar-datos') &&
     !menu.ejecutar(pad).some(o => o.ruta === 'actualizar-datos'));
 check('profesional → 5 opciones (4 + mensajes)',             menu.ejecutar(prof).length === 5, `= ${menu.ejecutar(prof).length}`);
-check('padre → 4 opciones (3 + mensajes)',                   menu.ejecutar(pad).length === 4,  `= ${menu.ejecutar(pad).length}`);
+check('padre → 5 opciones (4 + mensajes)',                   menu.ejecutar(pad).length === 5,  `= ${menu.ejecutar(pad).length}`);
+check('padre ve su asistencia, no la de registro',
+    menu.ejecutar(pad).some(o => o.ruta === 'asistencia-hijo') &&
+    !menu.ejecutar(pad).some(o => o.ruta === 'asistencia'));
+check('Asistencia del padre va después de Fotos',
+    menu.ejecutar(pad).findIndex(o => o.ruta === 'asistencia-hijo') ===
+    menu.ejecutar(pad).findIndex(o => o.ruta === 'fotos-hijo') + 1);
 check('todos ven Mensajes al final',  ['director','profesional','padre'].every(r =>
     menu.ejecutar(new Sesion({userType:r,userId:1})).at(-1).ruta === 'mensajes'));
 check('padre ve rutas *-hijo',        menu.ejecutar(pad).some(o => o.ruta === 'agenda-diaria-hijo'));
@@ -155,6 +163,25 @@ check('ActualizarGrupo envía la ficha completa, no el diff',
     repoGrupo.recibido.id === 3 &&
     repoGrupo.recibido.datos.nombreGrupo === 'Párvulos' &&
     repoGrupo.recibido.datos.descripcion === 'Nueva');
+
+console.log('\n── Asistencia del hijo: rango del mes y resumen ──');
+const feb = rangoDelMes(2026, 2);
+check('febrero de 2026 → del 01 al 28', feb.desde === '2026-02-01' && feb.hasta === '2026-02-28', `= ${feb.hasta}`);
+check('año bisiesto: febrero de 2024 llega al 29', rangoDelMes(2024, 2).hasta === '2024-02-29');
+check('meses de un dígito se rellenan a dos', rangoDelMes(2026, 9).desde === '2026-09-01');
+check('enero hacia atrás → diciembre del año anterior',
+    JSON.stringify(mesAnterior({ anio: 2026, mes: 1 })) === JSON.stringify({ anio: 2025, mes: 12 }));
+check('diciembre hacia delante → enero del año siguiente',
+    JSON.stringify(mesSiguiente({ anio: 2026, mes: 12 })) === JSON.stringify({ anio: 2027, mes: 1 }));
+
+const resumen = resumirAsistencia([
+    { estado: EstadoAsistencia.ASISTIO }, { estado: EstadoAsistencia.ASISTIO },
+    { estado: EstadoAsistencia.TARDE },   { estado: EstadoAsistencia.AUSENTE },
+]);
+check('cuenta los tres estados', resumen.asistio === 2 && resumen.tarde === 1 && resumen.ausente === 1);
+check('el total es la suma de los tres', resumen.total === 4);
+check('un estado desconocido no se cuenta', resumirAsistencia([{ estado: 'RARO' }]).total === 0);
+check('lista vacía → todo a cero', resumirAsistencia([]).total === 0);
 
 console.log(`\n════════════════════\nResultado: ${ok} pasan, ${fail} fallan`);
 process.exit(fail ? 1 : 0);

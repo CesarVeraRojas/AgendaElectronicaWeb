@@ -47,6 +47,10 @@ export class AgendaApiDataSource {
 
     // ── Asistencia ──────────────────────────────────────────────
     crearAsistencia(asistencia)         { return this.http.post('crear_asistencia.php', asistencia); }
+    /** Consulta del rol padre. listar_asistencias.php sólo admite profesional y director. */
+    getAsistenciasPorHijo(estId, desde, hasta) {
+        return this.http.get('get_asistencias_por_hijo.php', { estudiante_id: estId, desde, hasta });
+    }
 
     // ── Observaciones ───────────────────────────────────────────
     crearObservacion(obs)               { return this.http.post('crear_observacion.php', obs); }
