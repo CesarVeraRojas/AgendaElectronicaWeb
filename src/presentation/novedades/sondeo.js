@@ -17,8 +17,11 @@ import { navegar }             from '../router/index.js';
 
 const CADA_MS = 5 * 60 * 1000;
 
-let temporizador = null;
-let pendientes   = [];
+const MINIMO_ENTRE_CONSULTAS_MS = 30 * 1000;
+
+let temporizador   = null;
+let ultimaConsulta = 0;      // sólo se apunta cuando se consultó de verdad
+let pendientes     = [];
 const suscriptores = new Set();
 
 /** ¿Puede este navegador mostrar avisos del sistema? En iPhone, no. */
@@ -85,7 +88,11 @@ function mostrarAvisoDelSistema(novedades) {
 }
 
 async function consultar() {
+    // Sin sesión no hay nada que preguntar, y no cuenta como consulta hecha:
+    // así, al iniciar sesión, la primera del usuario sale enseguida.
     if (!SesionActual.existe()) return;
+
+    ultimaConsulta = Date.now();
     try {
         const nuevas = await Casos.obtenerNovedades.ejecutar();
         if (!nuevas.length) return;
@@ -97,6 +104,21 @@ async function consultar() {
         // Un fallo de red no debe ensuciar la pantalla: esto corre de fondo.
         console.error('No se pudieron consultar las novedades:', e);
     }
+}
+
+/**
+ * Consulta ahora mismo, sin esperar al siguiente turno.
+ *
+ * La usa el menú al abrirse, que es la primera pantalla tras iniciar sesión:
+ * cuando la aplicación carga todavía no hay sesión, así que la consulta inicial
+ * no devuelve nada y sin esto habría que esperar cinco minutos para ver el
+ * primer aviso.
+ *
+ * `forzar` se salta la espera mínima entre consultas.
+ */
+export function consultarAhora(forzar = false) {
+    if (!forzar && Date.now() - ultimaConsulta < MINIMO_ENTRE_CONSULTAS_MS) return;
+    consultar();
 }
 
 /** Arranca la vigilancia. Se llama una sola vez, al cargar la aplicación. */
@@ -114,6 +136,7 @@ export function iniciarSondeo() {
 /** Al cerrar sesión: lo guardado es de quien se acaba de ir. */
 export function olvidarNovedades() {
     pendientes = [];
+    ultimaConsulta = 0;      // quien entre después empieza de cero
     Casos.obtenerNovedades.olvidar();
     avisar();
 }

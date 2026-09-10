@@ -13,7 +13,7 @@ import { topBar }          from '../components/ui.js';
 import { avisoError }      from '../components/avisos.js';
 import { textoContador }   from '../../domain/entities/Novedad.js';
 import {
-    novedadesPendientes, suscribir, marcarVistas, olvidarNovedades,
+    novedadesPendientes, suscribir, marcarVistas, olvidarNovedades, consultarAhora,
     avisosDisponibles, permisoAvisos, pedirPermisoAvisos,
 } from '../novedades/sondeo.js';
 
@@ -128,9 +128,12 @@ export async function init() {
         card.addEventListener('click', () => navegar(card.dataset.ruta));
     });
 
-    // Novedades: lo que haya ahora y lo que vaya llegando mientras se mira el menú
+    // Novedades: lo que haya ahora y lo que vaya llegando mientras se mira el menú.
+    // Al abrir el menú se pregunta al servidor, porque es la pantalla a la que
+    // se llega tras iniciar sesión y la consulta del arranque fue sin sesión.
     pintarNovedades(novedadesPendientes());
     dejarDeEscuchar = suscribir(pintarNovedades);
+    consultarAhora();
 
     // Cerrar sesión
     document.getElementById('btn-logout')?.addEventListener('click', () => {
