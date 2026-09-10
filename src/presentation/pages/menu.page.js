@@ -11,8 +11,20 @@ import { navegar }         from '../router/index.js';
 import { html, esc, crudo }from '../components/html.js';
 import { topBar }          from '../components/ui.js';
 import { avisoError }      from '../components/avisos.js';
+import { textoContador }   from '../../domain/entities/Novedad.js';
+import {
+    novedadesPendientes, suscribir, marcarVistas, olvidarNovedades,
+    avisosDisponibles, permisoAvisos, pedirPermisoAvisos,
+} from '../novedades/sondeo.js';
 
 let sesion = null;
+let dejarDeEscuchar = null;
+
+/** El router lo llama al salir de la pantalla: aquí se suelta la suscripción. */
+export function destruir() {
+    dejarDeEscuchar?.();
+    dejarDeEscuchar = null;
+}
 
 export function render() {
     sesion = Casos.obtenerSesion.ejecutar();
@@ -37,10 +49,77 @@ export function render() {
             <div class="page-content menu-content">
                 <img class="menu-banner" src="assets/agenda_kids.jpeg" alt="" />
                 <h2 class="menu-greeting">Bienvenido, ${sesion?.nombres ?? ''}</h2>
+                <div id="menu-novedades"></div>
                 <div class="menu-grid">${crudo(tarjetas)}</div>
                 ${crudo(pie)}
             </div>
         </div>`;
+}
+
+/** Tarjeta de novedades: lo que ha pasado y aún no se ha mirado. */
+function pintarNovedades(novedades) {
+    const zona = document.getElementById('menu-novedades');
+    if (!zona) return;
+
+    const puedePedirPermiso = avisosDisponibles() && permisoAvisos() === 'default';
+
+    if (!novedades.length) {
+        // Sin novedades sólo tiene sentido ofrecer que se activen los avisos.
+        zona.innerHTML = puedePedirPermiso
+            ? html`<section class="novedades novedades--oferta">
+                       <span class="material-icons">notifications_none</span>
+                       <p class="novedades__texto">Activa los avisos para enterarte sin entrar a mirar.</p>
+                       <button class="btn btn--outlined" id="btn-permiso-avisos">Activar</button>
+                   </section>`
+            : '';
+        enlazarNovedades();
+        return;
+    }
+
+    const filas = novedades.slice(0, 5).map(n => html`
+        <button class="novedades__fila" data-ruta="${n.rutaDestino()}">
+            <span class="material-icons">${n.tipo === 'mensaje' ? 'mail' : n.tipo === 'agenda' ? 'event_note' : 'sticky_note_2'}</span>
+            <span class="novedades__fila-texto">
+                <strong>${n.titulo}</strong>
+                <em>${n.texto}</em>
+            </span>
+        </button>`).join('');
+
+    const resto = novedades.length > 5
+        ? `<p class="novedades__resto">y ${novedades.length - 5} más</p>`
+        : '';
+
+    zona.innerHTML = html`
+        <section class="novedades">
+            <header class="novedades__cab">
+                <span class="material-icons">notifications_active</span>
+                <p class="novedades__texto">${textoContador(novedades.length)}</p>
+                <button class="btn btn--text" id="btn-vistas">Marcar como vistas</button>
+            </header>
+            ${crudo(filas)}
+            ${crudo(resto)}
+            ${crudo(puedePedirPermiso
+                ? '<button class="btn btn--outlined btn--block" id="btn-permiso-avisos">Avisarme aunque no esté mirando</button>'
+                : '')}
+        </section>`;
+
+    enlazarNovedades();
+}
+
+function enlazarNovedades() {
+    document.querySelectorAll('.novedades__fila').forEach(fila => {
+        fila.addEventListener('click', () => {
+            marcarVistas();
+            navegar(fila.dataset.ruta);
+        });
+    });
+
+    document.getElementById('btn-vistas')?.addEventListener('click', marcarVistas);
+
+    document.getElementById('btn-permiso-avisos')?.addEventListener('click', async () => {
+        await pedirPermisoAvisos();
+        pintarNovedades(novedadesPendientes());
+    });
 }
 
 export async function init() {
@@ -49,8 +128,13 @@ export async function init() {
         card.addEventListener('click', () => navegar(card.dataset.ruta));
     });
 
+    // Novedades: lo que haya ahora y lo que vaya llegando mientras se mira el menú
+    pintarNovedades(novedadesPendientes());
+    dejarDeEscuchar = suscribir(pintarNovedades);
+
     // Cerrar sesión
     document.getElementById('btn-logout')?.addEventListener('click', () => {
+        olvidarNovedades();
         Casos.cerrarSesion.ejecutar();
         navegar('login');
     });

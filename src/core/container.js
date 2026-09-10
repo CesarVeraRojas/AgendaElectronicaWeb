@@ -25,6 +25,7 @@ import { ObservacionRepositoryImpl }  from '../data/repositories/ObservacionRepo
 import { AgendaDiariaRepositoryImpl } from '../data/repositories/AgendaDiariaRepositoryImpl.js';
 import { FotoRepositoryImpl }         from '../data/repositories/FotoRepositoryImpl.js';
 import { MensajeRepositoryImpl }      from '../data/repositories/MensajeRepositoryImpl.js';
+import { NovedadRepositoryImpl }      from '../data/repositories/NovedadRepositoryImpl.js';
 import { ProfesionalRepositoryImpl }  from '../data/repositories/ProfesionalRepositoryImpl.js';
 import { ColegioRepositoryImpl }      from '../data/repositories/ColegioRepositoryImpl.js';
 import { PadreRepositoryImpl }        from '../data/repositories/PadreRepositoryImpl.js';
@@ -46,6 +47,7 @@ import { ObtenerDestinatarios }      from '../domain/usecases/ObtenerDestinatari
 import { EnviarMensaje }             from '../domain/usecases/EnviarMensaje.js';
 import { MarcarMensajeLeido }        from '../domain/usecases/MarcarMensajeLeido.js';
 import { ObtenerEstadoLectura }     from '../domain/usecases/ObtenerEstadoLectura.js';
+import { ObtenerNovedades }         from '../domain/usecases/ObtenerNovedades.js';
 import { PrepararRespuesta }         from '../domain/usecases/PrepararRespuesta.js';
 import { ObtenerHijos }              from '../domain/usecases/ObtenerHijos.js';
 import { ObtenerAgendaDeHijo }       from '../domain/usecases/ObtenerAgendaDeHijo.js';
@@ -87,6 +89,7 @@ function construir() {
         agendaDiariaRepository: new AgendaDiariaRepositoryImpl({ apiDataSource }),
         fotoRepository:         new FotoRepositoryImpl({ apiDataSource }),
         mensajeRepository:      new MensajeRepositoryImpl({ apiDataSource }),
+        novedadRepository:      new NovedadRepositoryImpl({ apiDataSource, localStorageDataSource }),
         profesionalRepository:  new ProfesionalRepositoryImpl({ apiDataSource }),
         colegioRepository:      new ColegioRepositoryImpl({ apiDataSource }),
         padreRepository:        new PadreRepositoryImpl({ apiDataSource }),
@@ -112,6 +115,7 @@ function construir() {
             enviarMensaje:              new EnviarMensaje(repos),
             marcarMensajeLeido:         new MarcarMensajeLeido(repos),
             obtenerEstadoLectura:       new ObtenerEstadoLectura(repos),
+            obtenerNovedades:           new ObtenerNovedades(repos),
             prepararRespuesta:          new PrepararRespuesta(),
             obtenerHijos:               new ObtenerHijos(repos),
             obtenerAgendaDeHijo:        new ObtenerAgendaDeHijo(repos),

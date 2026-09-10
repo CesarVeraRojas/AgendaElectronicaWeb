@@ -9,7 +9,7 @@
  * json_encode devuelve un OBJETO `{"success":true,"0":{…},"1":{…}}`.
  * Las listas de acudientes y estudiantes salían vacías por esto.
  */
-import { comoLista, aAsistenciaDeHijo, aDestinatarioLectura } from '../src/data/dto/mappers.js';
+import { comoLista, aAsistenciaDeHijo, aDestinatarioLectura, aNovedad } from '../src/data/dto/mappers.js';
 
 let ok = 0, fail = 0;
 const check = (nombre, cond, extra = '') => {
@@ -69,6 +69,24 @@ check('sin nombre resuelto queda "Desconocido"',
     aDestinatarioLectura({ id: 1, destinatario_id: 2, destinatario_type: 'padre', leido: 0 }).nombre === 'Desconocido');
 check('la lista del endpoint viene pelada y comoLista la respeta',
     comoLista([{ id: 1, leido: 0 }, { id: 2, leido: 1 }]).map(aDestinatarioLectura).length === 2);
+
+console.log('\n── aNovedad(): avisos de novedades (BL-50) ──');
+
+const novedadAgenda = aNovedad({
+    tipo: 'agenda', clave: 'agenda:100:2026-09-09',
+    titulo: 'Agenda diaria de Mateo', texto: 'Ya puedes ver la agenda del miércoles 9 de septiembre de 2026',
+    fecha: '2026-09-09 15:00:00', referencia_id: 7, estudiante_id: 100, estudiante_nombre: 'Mateo Peña Ruiz',
+});
+check('traduce el tipo y la clave', novedadAgenda.tipo === 'agenda' && novedadAgenda.clave === 'agenda:100:2026-09-09');
+check('traduce el identificador de referencia', novedadAgenda.referenciaId === 7);
+check('traduce el estudiante', novedadAgenda.estudianteId === 100 && novedadAgenda.estudianteNombre === 'Mateo Peña Ruiz');
+check('sabe a qué pantalla lleva', novedadAgenda.rutaDestino() === 'agenda-diaria-hijo');
+
+const novedadMensaje = aNovedad({
+    tipo: 'mensaje', clave: 'mensaje:12', titulo: 'Mensaje de Marta', texto: 'Salida',
+    fecha: '2026-09-09 16:00:00', referencia_id: 12, estudiante_id: null, estudiante_nombre: null,
+});
+check('un mensaje no trae estudiante', novedadMensaje.estudianteId === null);
 
 console.log(`\n════════════════════\nResultado: ${ok} pasan, ${fail} fallan`);
 process.exit(fail ? 1 : 0);

@@ -15,6 +15,7 @@ import { AsistenciaRegistrada }       from '../../domain/entities/Asistencia.js'
 import { AgendaDiaria }               from '../../domain/entities/AgendaDiaria.js';
 import { Mensaje, UsuarioMensaje, DestinatarioLectura } from '../../domain/entities/Mensaje.js';
 import { Foto, FotosDeHijo }          from '../../domain/entities/Foto.js';
+import { Novedad }                    from '../../domain/entities/Novedad.js';
 import { Padre }                      from '../../domain/entities/Padre.js';
 
 /** Algunos endpoints devuelven listas, otros {data:[...]}; normaliza a array. */
@@ -204,6 +205,19 @@ export function aDestinatarioLectura(j) {
         destinatarioType: j.destinatario_type,
         nombre:           j.destinatario_nombre ?? 'Desconocido',
         leido:            j.leido,
+    });
+}
+
+export function aNovedad(j) {
+    return new Novedad({
+        tipo:             j.tipo,
+        clave:            j.clave,
+        titulo:           j.titulo ?? '',
+        texto:            j.texto ?? '',
+        fecha:            j.fecha,
+        referenciaId:     j.referencia_id,
+        estudianteId:     j.estudiante_id ?? null,
+        estudianteNombre: j.estudiante_nombre ?? null,
     });
 }
 

@@ -19,6 +19,8 @@ import { calcularCambios, primerObligatorioVacio } from '../src/domain/usecases/
 import { ActualizarPadre }      from '../src/domain/usecases/ActualizarPadre.js';
 import { ActualizarGrupo }      from '../src/domain/usecases/ActualizarGrupo.js';
 import { ObtenerEstadoLectura } from '../src/domain/usecases/ObtenerEstadoLectura.js';
+import { Novedad, TipoNovedad, filtrarNoAvisadas, recortarClaves, textoContador } from '../src/domain/entities/Novedad.js';
+import { ObtenerNovedades }   from '../src/domain/usecases/ObtenerNovedades.js';
 
 let ok = 0, fail = 0;
 const check = (nombre, cond, extra='') => {
@@ -222,6 +224,61 @@ check('en Enviados, leido = 1 marca la tarjeta como leída',
     new Mensaje({ id: 1, leido: 1, asunto: 'a', mensaje: 'b' }).leidoPorDestinatario() === true);
 check('en Enviados, leido = 0 la deja sin leer',
     new Mensaje({ id: 1, leido: 0, asunto: 'a', mensaje: 'b' }).leidoPorDestinatario() === false);
+
+console.log('\n── Avisos de novedades (BL-50) ──');
+
+const nov = (tipo, clave) => new Novedad({ tipo, clave, titulo: 't', texto: 'x', fecha: '2026-09-09 10:00:00' });
+
+check('el mensaje lleva a la bandeja',      nov(TipoNovedad.MENSAJE, 'mensaje:1').rutaDestino() === 'mensajes');
+check('la observación lleva a la del hijo', nov(TipoNovedad.OBSERVACION, 'observacion:1').rutaDestino() === 'observaciones-hijo');
+check('la agenda lleva a la del hijo',      nov(TipoNovedad.AGENDA, 'agenda:1:2026-09-09').rutaDestino() === 'agenda-diaria-hijo');
+check('un tipo desconocido no rompe la navegación', nov('otro', 'x:1').rutaDestino() === 'menu');
+
+const lote = [nov(TipoNovedad.MENSAJE, 'mensaje:1'), nov(TipoNovedad.AGENDA, 'agenda:100:2026-09-09')];
+check('sin nada avisado, pasan todas', filtrarNoAvisadas(lote, []).length === 2);
+check('lo ya avisado se descarta', filtrarNoAvisadas(lote, ['mensaje:1']).length === 1);
+check('la agenda retocada no vuelve a avisar',
+    filtrarNoAvisadas(lote, ['mensaje:1', 'agenda:100:2026-09-09']).length === 0);
+check('lista vacía no rompe', filtrarNoAvisadas([], ['mensaje:1']).length === 0);
+
+check('las claves no crecen sin límite', recortarClaves(Array.from({ length: 250 }, (_, i) => `k${i}`), 200).length === 200);
+check('y se quedan las últimas', recortarClaves(['a', 'b', 'c'], 2).join() === 'b,c');
+check('por debajo del tope no se toca nada', recortarClaves(['a', 'b'], 5).join() === 'a,b');
+
+check('contador en cero', textoContador(0) === 'Sin novedades');
+check('contador en uno, sin plural', textoContador(1) === '1 novedad');
+check('contador en varios', textoContador(4) === '4 novedades');
+
+// El caso de uso, con un repositorio de mentira
+function repoDeNovedades({ novedades = [], avisadas = [], ahora = '2026-09-09 12:00:00' } = {}) {
+    return {
+        guardadas: null, clavesGuardadas: null, olvidado: false, pedidoDesde: undefined,
+        ultimaConsulta() { return '2026-09-09 11:00:00'; },
+        async consultar(desde) { this.pedidoDesde = desde; return { ahora, novedades }; },
+        clavesAvisadas() { return avisadas; },
+        guardarUltimaConsulta(a) { this.guardadas = a; },
+        guardarClavesAvisadas(c) { this.clavesGuardadas = c; },
+        olvidar() { this.olvidado = true; },
+    };
+}
+
+let repo = repoDeNovedades({ novedades: lote });
+let caso = new ObtenerNovedades({ novedadRepository: repo });
+let nuevas = await caso.ejecutar();
+check('devuelve lo que no se había avisado', nuevas.length === 2);
+check('pregunta desde la marca guardada', repo.pedidoDesde === '2026-09-09 11:00:00');
+check('guarda la hora que dio el servidor, no la del navegador', repo.guardadas === '2026-09-09 12:00:00');
+check('recuerda las claves avisadas', repo.clavesGuardadas.join() === 'mensaje:1,agenda:100:2026-09-09');
+
+repo = repoDeNovedades({ novedades: lote, avisadas: ['mensaje:1', 'agenda:100:2026-09-09'] });
+caso = new ObtenerNovedades({ novedadRepository: repo });
+nuevas = await caso.ejecutar();
+check('sin novedades nuevas no devuelve nada', nuevas.length === 0);
+check('y no reescribe las claves', repo.clavesGuardadas === null);
+check('pero sí avanza la marca de tiempo', repo.guardadas === '2026-09-09 12:00:00');
+
+caso.olvidar();
+check('al cerrar sesión se olvida lo guardado', repo.olvidado === true);
 
 console.log(`\n════════════════════\nResultado: ${ok} pasan, ${fail} fallan`);
 process.exit(fail ? 1 : 0);
