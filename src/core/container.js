@@ -44,6 +44,7 @@ import { GuardarAgendaDiaria }       from '../domain/usecases/GuardarAgendaDiari
 import { SubirFoto }                 from '../domain/usecases/SubirFoto.js';
 import { ObtenerMensajes }           from '../domain/usecases/ObtenerMensajes.js';
 import { ObtenerDestinatarios }      from '../domain/usecases/ObtenerDestinatarios.js';
+import { ObtenerAcudientesDeGrupo }  from '../domain/usecases/ObtenerAcudientesDeGrupo.js';
 import { EnviarMensaje }             from '../domain/usecases/EnviarMensaje.js';
 import { MarcarMensajeLeido }        from '../domain/usecases/MarcarMensajeLeido.js';
 import { ObtenerEstadoLectura }     from '../domain/usecases/ObtenerEstadoLectura.js';
@@ -112,6 +113,7 @@ function construir() {
             subirFoto:                  new SubirFoto(repos),
             obtenerMensajes:            new ObtenerMensajes(repos),
             obtenerDestinatarios:       new ObtenerDestinatarios(repos),
+            obtenerAcudientesDeGrupo:   new ObtenerAcudientesDeGrupo(repos),
             enviarMensaje:              new EnviarMensaje(repos),
             marcarMensajeLeido:         new MarcarMensajeLeido(repos),
             obtenerEstadoLectura:       new ObtenerEstadoLectura(repos),

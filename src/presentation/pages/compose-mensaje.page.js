@@ -7,7 +7,7 @@
  */
 import { Casos }               from '../../core/container.js';
 import { navegar, EstadoRuta } from '../router/index.js';
-import { NuevoMensaje }        from '../../domain/entities/Mensaje.js';
+import { NuevoMensaje, textoDestinatarios } from '../../domain/entities/Mensaje.js';
 import { html, esc, crudo }    from '../components/html.js';
 import { topBar, campoTexto, campoArea, botonPrimario, botonSecundario } from '../components/ui.js';
 import { avisoError, avisoExito } from '../components/avisos.js';
@@ -26,7 +26,7 @@ export function render() {
         adjunto  = null;
     }
 
-    const nombres = borrador.destinatarios.map(d => d.displayName).join(', ');
+    const nombres = textoDestinatarios(borrador.destinatarios);
 
     return html`
         <div class="page">

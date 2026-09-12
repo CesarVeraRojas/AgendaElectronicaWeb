@@ -5,6 +5,8 @@ export class MensajeRepository {
     listar(userId, userType, bandeja) { noImplementado('MensajeRepository', 'listar'); }
     /** @returns {Promise<UsuarioMensaje[]>} */
     listarDestinatarios(userId, userType) { noImplementado('MensajeRepository', 'listarDestinatarios'); }
+    /** @returns {Promise<UsuarioMensaje[]>} */
+    listarAcudientesDeGrupo(grupoId)  { noImplementado('MensajeRepository', 'listarAcudientesDeGrupo'); }
     /** @returns {Promise<void>} */
     enviar(nuevoMensaje, remitente)   { noImplementado('MensajeRepository', 'enviar'); }
     /** @returns {Promise<void>} */

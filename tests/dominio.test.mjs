@@ -8,7 +8,8 @@
 import { Sesion, Rol }          from '../src/domain/entities/Sesion.js';
 import { ObtenerMenuPorRol }    from '../src/domain/usecases/ObtenerMenuPorRol.js';
 import { PrepararRespuesta }    from '../src/domain/usecases/PrepararRespuesta.js';
-import { Mensaje, DestinatarioLectura, resumirLectura, textoLectura } from '../src/domain/entities/Mensaje.js';
+import { Mensaje, DestinatarioLectura, resumirLectura, textoLectura, textoDestinatarios, textoMarcadoDeGrupo } from '../src/domain/entities/Mensaje.js';
+import { ObtenerAcudientesDeGrupo } from '../src/domain/usecases/ObtenerAcudientesDeGrupo.js';
 import { Acudiente }            from '../src/domain/entities/Estudiante.js';
 import { RegistrarAsistencia }  from '../src/domain/usecases/RegistrarAsistencia.js';
 import { EstadoAsistencia, resumirAsistencia } from '../src/domain/entities/Asistencia.js';
@@ -261,6 +262,45 @@ check('cero leídos no se confunde con "sin dato"',
 check('el texto del acuse es el mismo en la bandeja y en el detalle',
     textoLectura({ total: 3, leidos: 1 }) === 'Leído por 1 de 3' &&
     textoLectura({ total: 1, leidos: 0 }) === 'Sin leer');
+
+console.log('\n── Escribir a todo un grupo (BL-54) ──');
+
+const persona = n => ({ id: n, userType: 'padre', displayName: `Acudiente ${n}` });
+
+check('sin destinatarios el campo queda vacío', textoDestinatarios([]) === '');
+check('con pocos se nombran',
+    textoDestinatarios([persona(1), persona(2)]) === 'Acudiente 1, Acudiente 2');
+check('en el límite todavía se nombran',
+    textoDestinatarios([persona(1), persona(2), persona(3)]) === 'Acudiente 1, Acudiente 2, Acudiente 3');
+check('con muchos se dice cuántos son',
+    textoDestinatarios([persona(1), persona(2), persona(3), persona(4)]) === '4 destinatarios');
+
+check('un grupo sin acudientes se explica, no se calla',
+    textoMarcadoDeGrupo({ nombreGrupo: 'Caminadores', nuevos: 0, totalGrupo: 0, totalSeleccionados: 0 })
+        === 'El grupo Caminadores no tiene acudientes registrados, así que no se marcó a nadie.');
+check('si ya estaban todos marcados, también lo dice',
+    textoMarcadoDeGrupo({ nombreGrupo: 'Jardín', nuevos: 0, totalGrupo: 18, totalSeleccionados: 18 })
+        === 'Los 18 acudientes de Jardín ya estaban marcados.');
+check('y al marcar dice cuántos nuevos y cuántos hay en total',
+    textoMarcadoDeGrupo({ nombreGrupo: 'Jardín', nuevos: 15, totalGrupo: 18, totalSeleccionados: 20 })
+        === 'Marcados 15 acudientes de Jardín. En total hay 20 destinatarios seleccionados.');
+
+const acudientesDeGrupo = new ObtenerAcudientesDeGrupo({
+    mensajeRepository: { listarAcudientesDeGrupo: async id => [persona(id)] },
+});
+
+check('el atajo de grupos es sólo del director',
+    acudientesDeGrupo.disponiblePara(dir) === true &&
+    acudientesDeGrupo.disponiblePara(prof) === false &&
+    acudientesDeGrupo.disponiblePara(pad) === false);
+check('sin sesión no está disponible', acudientesDeGrupo.disponiblePara(null) === false);
+
+const rechaza = async (promesa) => { try { await promesa; return false; } catch { return true; } };
+check('un profesional no puede pedirlo', await rechaza(acudientesDeGrupo.ejecutar(prof, 1)));
+check('sin sesión tampoco',              await rechaza(acudientesDeGrupo.ejecutar(null, 1)));
+check('sin grupo da error de validación', await rechaza(acudientesDeGrupo.ejecutar(dir, null)));
+check('el director sí lo obtiene',
+    (await acudientesDeGrupo.ejecutar(dir, 7))[0].id === 7);
 
 console.log('\n── Avisos de novedades (BL-50) ──');
 

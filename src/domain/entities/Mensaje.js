@@ -91,6 +91,37 @@ export class Mensaje {
 }
 
 /**
+ * Qué poner en el campo "Para" al redactar. Con pocos destinatarios se nombran;
+ * con muchos, la lista de nombres se vuelve ilegible y se dice cuántos son,
+ * igual que hace el detalle de un mensaje enviado.
+ */
+export function textoDestinatarios(destinatarios = [], maximoNombres = 3) {
+    if (!destinatarios.length)                  return '';
+    if (destinatarios.length <= maximoNombres)  return destinatarios.map(d => d.displayName).join(', ');
+    return `${destinatarios.length} destinatarios`;
+}
+
+/**
+ * Lo que se le dice al director tras tocar un grupo. Está aquí, y no en la
+ * pantalla, para que la web y Android digan exactamente lo mismo, y para poder
+ * fijar las palabras con una prueba.
+ *
+ * Los dos casos vacíos se explican en vez de no hacer nada: un grupo sin
+ * acudientes y un grupo cuyos acudientes ya estaban todos marcados se ven igual
+ * desde fuera, y sin aviso parecen un fallo.
+ */
+export function textoMarcadoDeGrupo({ nombreGrupo, nuevos, totalGrupo, totalSeleccionados }) {
+    if (totalGrupo === 0) {
+        return `El grupo ${nombreGrupo} no tiene acudientes registrados, así que no se marcó a nadie.`;
+    }
+    if (nuevos === 0) {
+        return `Los ${totalGrupo} acudientes de ${nombreGrupo} ya estaban marcados.`;
+    }
+    return `Marcados ${nuevos} acudientes de ${nombreGrupo}. ` +
+           `En total hay ${totalSeleccionados} destinatarios seleccionados.`;
+}
+
+/**
  * Texto del acuse de lectura, en un solo sitio porque lo usan la tarjeta de la
  * bandeja y la sección de estado del detalle. Con un único destinatario el
  * recuento sobra: basta con decir si lo leyó.

@@ -18,6 +18,8 @@ export class AgendaApiDataSource {
     // ── Grupos ──────────────────────────────────────────────────
     getGrupos(colegioId)                { return this.http.get('grupos.php', colegioId != null ? { colegio_id: colegioId } : {}); }
     getGruposPorProfesional(profId)     { return this.http.get('get_grupos_por_profesional.php', { profesional_id: profId }); }
+    /** Acudientes de un grupo, para el envío a todas las familias (BL-54). */
+    getAcudientesDeGrupo(grupoId)       { return this.http.get('get_destinatarios_por_grupo.php', { grupo_id: grupoId }); }
     crearGrupo(grupo)                   { return this.http.post('grupos.php', grupo); }
     /** grupos.php despacha por método: la actualización va por PUT. */
     actualizarGrupo(grupo)              { return this.http.put('grupos.php', grupo); }

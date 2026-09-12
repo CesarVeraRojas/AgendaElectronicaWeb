@@ -248,6 +248,21 @@ body {
 }
 .pick-row__type { font-size: 12px; color: var(--on-surface-variant); text-transform: capitalize; }
 
+/* Atajo por grupos del selector de destinatarios (BL-54). Sólo lo ve el director. */
+.pick-groups__title { margin: 0 0 var(--sp-sm); font-weight: 500; color: var(--primary-dark); }
+.pick-groups { display: flex; flex-wrap: wrap; gap: var(--sp-sm); }
+.pick-groups__status { margin: var(--sp-sm) 0 var(--sp-md); font-size: 13px; color: var(--on-surface-variant); }
+.pick-groups__status--error { color: var(--error-dark); }
+.chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border: 1px solid var(--primary); border-radius: 999px;
+    background: var(--surface); color: var(--primary-dark);
+    font: inherit; font-size: 14px; cursor: pointer;
+}
+.chip:hover:not(:disabled) { background: var(--surface-variant); }
+.chip:disabled { opacity: .6; cursor: default; }
+.chip .material-icons { font-size: 18px; }
+
 /* ── Asistencia / observaciones ───────────────────────────── */
 .att-card { padding: var(--sp-md); }
 .att-card__name { margin: 0 0 var(--sp-sm); font-weight: 500; color: var(--primary-dark); }

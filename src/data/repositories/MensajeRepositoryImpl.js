@@ -15,6 +15,10 @@ export class MensajeRepositoryImpl extends MensajeRepository {
         return comoLista(await this.api.getUsuariosParaMensajes(userId, userType)).map(aUsuarioMensaje);
     }
 
+    async listarAcudientesDeGrupo(grupoId) {
+        return comoLista(await this.api.getAcudientesDeGrupo(grupoId)).map(aUsuarioMensaje);
+    }
+
     /**
      * Con adjunto va por multipart; sin adjunto, por JSON.
      * Es la misma bifurcación que hace ComposeMensajeViewModel.onSendMensaje().
