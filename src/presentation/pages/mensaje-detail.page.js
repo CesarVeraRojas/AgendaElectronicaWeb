@@ -11,6 +11,7 @@
  */
 import { Casos }             from '../../core/container.js';
 import { navegar, EstadoRuta } from '../router/index.js';
+import { textoLectura }      from '../../domain/entities/Mensaje.js';
 import { html, esc, crudo }  from '../components/html.js';
 import { topBar, seccion, filaInfo, spinner, bloqueError } from '../components/ui.js';
 import { fechaHora }         from '../components/formato.js';
@@ -45,7 +46,7 @@ export function render() {
             <div class="page-content">
                 ${crudo(seccion('', [
                     filaInfo('De:',     mensaje.remitenteNombre ?? 'Desconocido'),
-                    filaInfo('Para:',   mensaje.destinatarioNombre ?? 'Desconocido'),
+                    filaInfo('Para:',   destinatarios(mensaje)),
                     filaInfo('Asunto:', mensaje.asunto),
                     filaInfo('Fecha:',  fechaHora(mensaje.fechaEnvio)),
                 ].join('')))}
@@ -66,6 +67,17 @@ export function render() {
         </div>`;
 }
 
+/**
+ * Qué poner en "Para:". Con varios destinatarios el nombre de uno solo
+ * engañaría, así que se dice cuántos son; abajo, la sección de estado de
+ * lectura los nombra uno a uno.
+ */
+function destinatarios(mensaje) {
+    return mensaje.esEnvioMultiple()
+        ? `${mensaje.numeroDestinatarios} destinatarios`
+        : (mensaje.destinatarioNombre ?? 'Desconocido');
+}
+
 /** Una línea por destinatario, con su estado. */
 function filaLectura(destinatario) {
     const leido = destinatario.haLeido();
@@ -77,15 +89,6 @@ function filaLectura(destinatario) {
             <span class="read-row__name">${destinatario.nombre}</span>
             <span class="read-row__state">${leido ? 'Leído' : 'Sin leer'}</span>
         </div>`;
-}
-
-/**
- * Con un solo destinatario el recuento sobra: basta con decir si lo leyó.
- */
-function resumenLectura({ total, leidos, todosLeidos }) {
-    if (total === 1) return leidos === 1 ? 'Leído' : 'Sin leer';
-    if (todosLeidos) return `Leído por todos (${total})`;
-    return `Leído por ${leidos} de ${total}`;
 }
 
 /** Carga y pinta el estado de lectura. Sólo se llama si el mensaje es mío. */
@@ -103,7 +106,7 @@ async function cargarEstadoLectura() {
         }
 
         contenedor.innerHTML = seccion('Estado de lectura', [
-            `<p class="read-summary">${esc(resumenLectura(resumen))}</p>`,
+            `<p class="read-summary">${esc(textoLectura(resumen))}</p>`,
             ...destinatarios.map(filaLectura),
         ].join(''));
     } catch (e) {

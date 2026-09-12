@@ -5,7 +5,9 @@
  * Réplica de las reglas de la app:
  *   - Pestañas Recibidos / Enviados.
  *   - Sólo los recibidos pueden aparecer como no leídos (negrita + punto azul).
- *   - En Enviados, cada tarjeta dice si ese destinatario ya lo leyó (BL-46).
+ *   - En Enviados hay una tarjeta por ENVÍO, no por destinatario (BL-53): un
+ *     mensaje a veinte padres es una tarjeta que dice a cuántos fue y cuántos
+ *     lo han leído. La agrupación la hace el backend.
  *   - Al volver del detalle la lista se recarga, para que el mensaje recién
  *     leído deje de figurar como no leído (corrección hecha en Android).
  */
@@ -37,12 +39,15 @@ function tarjetaMensaje(mensaje, esRecibida) {
     const noLeido = mensaje.esNoLeido(esRecibida);
     const quien   = esRecibida
         ? `De: ${mensaje.remitenteNombre ?? 'Desconocido'}`
-        : `Para: ${mensaje.destinatarioNombre ?? 'Desconocido'}`;
+        : `Para: ${mensaje.resumenDestinatarios()}`;
 
-    // En Enviados el dato de lectura es del destinatario, no mío.
-    const acuse = esRecibida ? '' : (mensaje.leidoPorDestinatario()
-        ? '<span class="msg-card__read msg-card__read--done"><span class="material-icons">done_all</span>Leído</span>'
-        : '<span class="msg-card__read"><span class="material-icons">schedule</span>Sin leer</span>');
+    // En Enviados el dato de lectura es de los destinatarios, no mío, y cuenta
+    // el envío entero: "Leído por 2 de 5".
+    const leidoPorTodos = mensaje.todosHanLeido();
+    const acuse = esRecibida ? '' : `
+        <span class="msg-card__read${leidoPorTodos ? ' msg-card__read--done' : ''}">
+            <span class="material-icons">${leidoPorTodos ? 'done_all' : 'schedule'}</span>${esc(mensaje.resumenAcuse())}
+        </span>`;
 
     return html`
         <article class="msg-card${noLeido ? ' msg-card--unread' : ''}" data-id="${mensaje.id}">

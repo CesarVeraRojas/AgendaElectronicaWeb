@@ -8,7 +8,7 @@
 import { Sesion, Rol }          from '../src/domain/entities/Sesion.js';
 import { ObtenerMenuPorRol }    from '../src/domain/usecases/ObtenerMenuPorRol.js';
 import { PrepararRespuesta }    from '../src/domain/usecases/PrepararRespuesta.js';
-import { Mensaje, DestinatarioLectura, resumirLectura } from '../src/domain/entities/Mensaje.js';
+import { Mensaje, DestinatarioLectura, resumirLectura, textoLectura } from '../src/domain/entities/Mensaje.js';
 import { Acudiente }            from '../src/domain/entities/Estudiante.js';
 import { RegistrarAsistencia }  from '../src/domain/usecases/RegistrarAsistencia.js';
 import { EstadoAsistencia, resumirAsistencia } from '../src/domain/entities/Asistencia.js';
@@ -224,6 +224,43 @@ check('en Enviados, leido = 1 marca la tarjeta como leída',
     new Mensaje({ id: 1, leido: 1, asunto: 'a', mensaje: 'b' }).leidoPorDestinatario() === true);
 check('en Enviados, leido = 0 la deja sin leer',
     new Mensaje({ id: 1, leido: 0, asunto: 'a', mensaje: 'b' }).leidoPorDestinatario() === false);
+
+console.log('\n── Una tarjeta por envío en Enviados (BL-53) ──');
+
+const envio = (extra = {}) => new Mensaje({
+    id: 1, asunto: 'a', mensaje: 'b', leido: 0, destinatarioNombre: 'Luisa Peña', ...extra,
+});
+
+check('sin cuentas, la fila se representa a sí misma',
+    envio().numeroDestinatarios === 1 && envio().esEnvioMultiple() === false);
+check('con tres destinatarios es un envío múltiple',
+    envio({ totalDestinatarios: 3 }).esEnvioMultiple() === true);
+check('las cuentas llegan del PHP como cadena y también valen',
+    envio({ totalDestinatarios: '3' }).numeroDestinatarios === 3);
+check('un destinatario se nombra tal cual',
+    envio({ totalDestinatarios: 1 }).resumenDestinatarios() === 'Luisa Peña');
+check('con varios se dice cuántos más',
+    envio({ totalDestinatarios: 5 }).resumenDestinatarios() === 'Luisa Peña y 4 más');
+check('sin nombre no se rompe',
+    envio({ destinatarioNombre: null, totalDestinatarios: 2 }).resumenDestinatarios() === 'Desconocido y 1 más');
+
+check('con un destinatario el acuse no cuenta',
+    envio({ leido: 1 }).resumenAcuse() === 'Leído' && envio({ leido: 0 }).resumenAcuse() === 'Sin leer');
+check('con varios, el acuse es un recuento',
+    envio({ totalDestinatarios: 5, totalLeidos: 2 }).resumenAcuse() === 'Leído por 2 de 5');
+check('cuando los abren todos, lo dice',
+    envio({ totalDestinatarios: 5, totalLeidos: 5 }).resumenAcuse() === 'Leído por todos (5)');
+check('el icono sólo se marca con todos leídos',
+    envio({ totalDestinatarios: 5, totalLeidos: 4 }).todosHanLeido() === false &&
+    envio({ totalDestinatarios: 5, totalLeidos: 5 }).todosHanLeido() === true);
+check('sin cuenta de leídos se cae al leido de la fila',
+    envio({ leido: 1 }).numeroLeidos === 1 && envio({ leido: 0 }).numeroLeidos === 0);
+check('cero leídos no se confunde con "sin dato"',
+    envio({ totalDestinatarios: 4, totalLeidos: 0 }).resumenAcuse() === 'Leído por 0 de 4');
+
+check('el texto del acuse es el mismo en la bandeja y en el detalle',
+    textoLectura({ total: 3, leidos: 1 }) === 'Leído por 1 de 3' &&
+    textoLectura({ total: 1, leidos: 0 }) === 'Sin leer');
 
 console.log('\n── Avisos de novedades (BL-50) ──');
 

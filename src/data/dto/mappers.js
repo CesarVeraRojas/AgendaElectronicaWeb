@@ -195,6 +195,9 @@ export function aMensaje(j) {
         remitenteNombre:    j.remitente_nombre ?? null,
         destinatarioNombre: j.destinatario_nombre ?? null,
         adjuntoUrl:         j.adjunto_url ?? null,
+        // Sólo vienen en Enviados, que agrupa las filas de un mismo envío.
+        totalDestinatarios: j.total_destinatarios ?? null,
+        totalLeidos:        j.total_leidos ?? null,
     });
 }
 

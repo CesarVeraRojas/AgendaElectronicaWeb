@@ -10,6 +10,7 @@ export class Mensaje {
         id, remitenteId, remitenteType, destinatarioId, destinatarioType,
         asunto, mensaje, fechaEnvio, leido,
         remitenteNombre = null, destinatarioNombre = null, adjuntoUrl = null,
+        totalDestinatarios = null, totalLeidos = null,
     }) {
         this.id                 = id;
         this.remitenteId        = remitenteId;
@@ -23,6 +24,10 @@ export class Mensaje {
         this.remitenteNombre    = remitenteNombre;
         this.destinatarioNombre = destinatarioNombre;
         this.adjuntoUrl         = adjuntoUrl;
+        // Cuentas del envío al que pertenece la fila. Sólo llegan en la bandeja
+        // de Enviados, que devuelve una tarjeta por envío y no por destinatario.
+        this.totalDestinatarios = totalDestinatarios;
+        this.totalLeidos        = totalLeidos;
     }
 
     /** Regla de MensajesScreen.kt: sólo los recibidos se marcan como no leídos. */
@@ -38,6 +43,62 @@ export class Mensaje {
     leidoPorDestinatario() {
         return Number(this.leido) === 1;
     }
+
+    /**
+     * A cuánta gente se envió. Un mensaje anterior a la agrupación, o uno
+     * recibido, no trae la cuenta: entonces la fila se representa a sí misma.
+     */
+    get numeroDestinatarios() {
+        const n = Number(this.totalDestinatarios);
+        return Number.isFinite(n) && n > 0 ? n : 1;
+    }
+
+    esEnvioMultiple() {
+        return this.numeroDestinatarios > 1;
+    }
+
+    /** Para la tarjeta de Enviados: "Luisa Peña" o "Luisa Peña y 4 más". */
+    resumenDestinatarios() {
+        const nombre = this.destinatarioNombre ?? 'Desconocido';
+        const otros  = this.numeroDestinatarios - 1;
+        return otros > 0 ? `${nombre} y ${otros} más` : nombre;
+    }
+
+    /**
+     * Cuántos han abierto el mensaje, contando todo el envío.
+     *
+     * El ausente se comprueba antes de convertir: `Number(null)` es cero, así
+     * que preguntar sólo por `Number.isFinite` daría "nadie lo ha leído" a un
+     * mensaje sin la cuenta, que es justo lo contrario de caer al dato de la fila.
+     */
+    get numeroLeidos() {
+        if (this.totalLeidos === null || this.totalLeidos === undefined) {
+            return this.leidoPorDestinatario() ? 1 : 0;
+        }
+        const n = Number(this.totalLeidos);
+        return Number.isFinite(n) ? n : 0;
+    }
+
+    /** Texto del acuse en la tarjeta de Enviados. */
+    resumenAcuse() {
+        return textoLectura({ total: this.numeroDestinatarios, leidos: this.numeroLeidos });
+    }
+
+    /** El icono sólo se marca cuando lo han leído todos. */
+    todosHanLeido() {
+        return this.numeroLeidos >= this.numeroDestinatarios;
+    }
+}
+
+/**
+ * Texto del acuse de lectura, en un solo sitio porque lo usan la tarjeta de la
+ * bandeja y la sección de estado del detalle. Con un único destinatario el
+ * recuento sobra: basta con decir si lo leyó.
+ */
+export function textoLectura({ total, leidos }) {
+    if (total <= 1)      return leidos >= 1 ? 'Leído' : 'Sin leer';
+    if (leidos >= total) return `Leído por todos (${total})`;
+    return `Leído por ${leidos} de ${total}`;
 }
 
 /**

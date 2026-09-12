@@ -9,7 +9,7 @@
  * json_encode devuelve un OBJETO `{"success":true,"0":{…},"1":{…}}`.
  * Las listas de acudientes y estudiantes salían vacías por esto.
  */
-import { comoLista, aAsistenciaDeHijo, aDestinatarioLectura, aNovedad } from '../src/data/dto/mappers.js';
+import { comoLista, aAsistenciaDeHijo, aDestinatarioLectura, aNovedad, aMensaje } from '../src/data/dto/mappers.js';
 
 let ok = 0, fail = 0;
 const check = (nombre, cond, extra = '') => {
@@ -87,6 +87,27 @@ const novedadMensaje = aNovedad({
     fecha: '2026-09-09 16:00:00', referencia_id: 12, estudiante_id: null, estudiante_nombre: null,
 });
 check('un mensaje no trae estudiante', novedadMensaje.estudianteId === null);
+
+console.log('\n── Cuentas del envío en Enviados (BL-53) ──');
+
+const enviado = aMensaje({
+    id: 7, remitente_id: 10, remitente_type: 'profesional',
+    destinatario_id: 30, destinatario_type: 'padre',
+    asunto: 'Salida', mensaje: 'El viernes', fecha_envio: '2026-09-11 10:00:00', leido: 0,
+    destinatario_nombre: 'Luisa Peña', total_destinatarios: 3, total_leidos: 1,
+});
+check('trae cuántos destinatarios tuvo el envío', enviado.numeroDestinatarios === 3);
+check('y cuántos lo han leído', enviado.numeroLeidos === 1);
+check('con lo que la tarjeta dice "Leído por 1 de 3"', enviado.resumenAcuse() === 'Leído por 1 de 3');
+
+const recibido = aMensaje({
+    id: 8, remitente_id: 10, remitente_type: 'profesional',
+    destinatario_id: 30, destinatario_type: 'padre',
+    asunto: 'Salida', mensaje: 'El viernes', fecha_envio: '2026-09-11 10:00:00', leido: 0,
+    remitente_nombre: 'Marta Ríos',
+});
+check('un recibido no trae las cuentas y no las inventa',
+    recibido.totalDestinatarios === null && recibido.numeroDestinatarios === 1);
 
 console.log(`\n════════════════════\nResultado: ${ok} pasan, ${fail} fallan`);
 process.exit(fail ? 1 : 0);
