@@ -47,9 +47,6 @@ function limpiarEstado() {
     Object.keys(EstadoRuta).forEach(k => delete EstadoRuta[k]);
 }
 
-/** Pila de navegación, para que "volver" se comporte como popBackStack(). */
-const pila = [];
-
 let paginaActual = null;
 
 /** Navega a una ruta, opcionalmente pasando datos. */
@@ -59,11 +56,20 @@ export function navegar(ruta, estado = {}) {
     window.location.hash = `#/${ruta}`;
 }
 
-/** Espejo de navController.popBackStack(). */
-export function volver(rutaPorDefecto = 'menu') {
-    pila.pop();                       // la actual
-    const anterior = pila.pop();      // la previa
-    navegar(anterior ?? rutaPorDefecto);
+/**
+ * Vuelve al destino que la pantalla declara en su barra superior (data-volver).
+ *
+ * Es navegación hacia arriba por jerarquía, no por historial: cada pantalla sabe
+ * de quién cuelga y ese destino no cambia según cómo se haya llegado a ella.
+ * Antes se decidía con una lista de visitas, y como toda navegación añadía una
+ * entrada, también la de después de enviar un mensaje, la flecha de la bandeja
+ * devolvía a la pantalla de redacción.
+ *
+ * Una pantalla puede exportar estadoAlVolver() para llevarse datos consigo; lo
+ * usa el selector de destinatarios para no perder el borrador.
+ */
+export function volver(ruta = 'menu') {
+    navegar(ruta, paginaActual?.estadoAlVolver?.() ?? {});
 }
 
 function nombreDeRuta() {
@@ -108,7 +114,6 @@ async function resolver() {
             btn.addEventListener('click', () => volver(btn.dataset.volver));
         });
 
-        if (pila[pila.length - 1] !== ruta) pila.push(ruta);
         window.scrollTo(0, 0);
     } catch (e) {
         console.error(`Error al cargar la ruta "${ruta}":`, e);

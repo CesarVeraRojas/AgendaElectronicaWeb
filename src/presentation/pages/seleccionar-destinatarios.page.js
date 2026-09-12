@@ -28,6 +28,15 @@ export function render() {
         </div>`;
 }
 
+/**
+ * Lo que la flecha atrás se lleva de vuelta a la redacción: el borrador tal y
+ * como llegó, para no perder el asunto ni el cuerpo. Los destinatarios marcados
+ * se descartan a propósito, porque sólo se aplican con Aceptar.
+ */
+export function estadoAlVolver() {
+    return borrador ? { borrador, conservarBorrador: true } : {};
+}
+
 export async function init() {
     const contenedor = document.getElementById('lista-destinatarios');
     contenedor.innerHTML = spinner('Cargando destinatarios…');
