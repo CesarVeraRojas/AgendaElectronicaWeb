@@ -2,10 +2,13 @@
  * HttpClient — Cliente HTTP genérico.
  * Espejo de: network/RetrofitClient.kt (Retrofit + OkHttp + authInterceptor)
  *
- * Replica el interceptor de autenticación de Android exactamente:
- *   - GET       → user_id y user_type como query params + headers X-User-Id / X-User-Type
- *   - POST JSON → user_id y user_type inyectados en el cuerpo + headers
- *   - Multipart → sólo headers (no se puede tocar el cuerpo sin romper el boundary)
+ * **Desde BL-22 la autenticación es un token y nada más.** Antes este cliente
+ * repartía la identidad por tres sitios a la vez —cabeceras X-User-Id, query
+ * string y cuerpo JSON— porque el servidor las aceptaba las tres. Eso era
+ * precisamente el agujero: cualquiera podía escribir esas tres cosas.
+ *
+ * Ahora sólo va `Authorization: Bearer <token>`, idéntico en los cuatro
+ * métodos, incluido el multipart. Es bastante menos código.
  *
  * Esta clase es el único punto del frontend que conoce `fetch`.
  */
@@ -24,14 +27,10 @@ export class HttpClient {
         this.baseUrl = baseUrl;
     }
 
-    /** Cabeceras de autenticación, equivalentes al authInterceptor de RetrofitClient. */
+    /** Cabecera de autenticación, equivalente al authInterceptor de RetrofitClient. */
     _authHeaders() {
-        const s = this.proveedorDeSesion?.();
-        if (!s?.userId) return {};
-        return {
-            'X-User-Id':   String(s.userId),
-            'X-User-Type': String(s.userType),
-        };
+        const token = this.proveedorDeSesion?.()?.token;
+        return token ? { 'Authorization': `Bearer ${token}` } : {};
     }
 
     /** Convierte la respuesta en objeto, con errores legibles para el usuario. */
@@ -69,14 +68,9 @@ export class HttpClient {
         return this._procesar(res);
     }
 
-    /** GET — añade user_id / user_type al query string, igual que el interceptor. */
+    /** GET — la identidad ya no viaja en el query string: sólo en la cabecera. */
     async get(endpoint, params = {}) {
-        const s = this.proveedorDeSesion?.();
         const todos = { ...params };
-        if (s?.userId) {
-            todos.user_id   = s.userId;
-            todos.user_type = s.userType;
-        }
         // Descarta parámetros nulos para no enviar "null" literal
         Object.keys(todos).forEach(k => (todos[k] === null || todos[k] === undefined) && delete todos[k]);
 
@@ -85,18 +79,12 @@ export class HttpClient {
         return this._enviar(url, { method: 'GET', headers: this._authHeaders() });
     }
 
-    /** POST con cuerpo JSON — inyecta user_id / user_type en el cuerpo. */
+    /** POST con cuerpo JSON — el cuerpo lleva sólo lo que pide el endpoint. */
     async post(endpoint, body = {}) {
-        const s = this.proveedorDeSesion?.();
-        const cuerpo = { ...body };
-        if (s?.userId) {
-            cuerpo.user_id   = s.userId;
-            cuerpo.user_type = s.userType;
-        }
         return this._enviar(this.baseUrl + endpoint, {
             method:  'POST',
             headers: { 'Content-Type': 'application/json', ...this._authHeaders() },
-            body:    JSON.stringify(cuerpo),
+            body:    JSON.stringify(body),
         });
     }
 
@@ -106,16 +94,10 @@ export class HttpClient {
      * helpers.php envía `Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS`.
      */
     async put(endpoint, body = {}) {
-        const s = this.proveedorDeSesion?.();
-        const cuerpo = { ...body };
-        if (s?.userId) {
-            cuerpo.user_id   = s.userId;
-            cuerpo.user_type = s.userType;
-        }
         return this._enviar(this.baseUrl + endpoint, {
             method:  'PUT',
             headers: { 'Content-Type': 'application/json', ...this._authHeaders() },
-            body:    JSON.stringify(cuerpo),
+            body:    JSON.stringify(body),
         });
     }
 

@@ -15,6 +15,10 @@ export class AgendaApiDataSource {
         return this.http.post('login.php', { email, password });
     }
 
+    cerrarSesion() {
+        return this.http.post('cerrar_sesion.php', {});
+    }
+
     // ── Grupos ──────────────────────────────────────────────────
     getGrupos(colegioId)                { return this.http.get('grupos.php', colegioId != null ? { colegio_id: colegioId } : {}); }
     getGruposPorProfesional(profId)     { return this.http.get('get_grupos_por_profesional.php', { profesional_id: profId }); }

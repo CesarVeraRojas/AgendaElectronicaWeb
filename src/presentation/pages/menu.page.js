@@ -136,9 +136,9 @@ export async function init() {
     consultarAhora();
 
     // Cerrar sesión
-    document.getElementById('btn-logout')?.addEventListener('click', () => {
+    document.getElementById('btn-logout')?.addEventListener('click', async () => {
         olvidarNovedades();
-        Casos.cerrarSesion.ejecutar();
+        await Casos.cerrarSesion.ejecutar();
         navegar('login');
     });
 

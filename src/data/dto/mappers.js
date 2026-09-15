@@ -43,6 +43,7 @@ export function comoLista(json) {
 export function aSesion(json) {
     const u = json?.user ?? {};
     return new Sesion({
+        token:     json?.token ?? null,
         userType:  json?.user_type,
         userId:    u.id,
         colegioId: u.colegio_id ?? null,

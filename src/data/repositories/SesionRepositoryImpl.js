@@ -22,6 +22,7 @@ export class SesionRepositoryImpl extends SesionRepository {
 
     guardar(sesion) {
         this.storage.escribir(Config.SESSION_KEY, {
+            token:     sesion.token,
             userType:  sesion.userType,
             userId:    sesion.userId,
             colegioId: sesion.colegioId,

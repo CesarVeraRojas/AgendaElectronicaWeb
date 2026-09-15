@@ -12,7 +12,10 @@ export const Rol = {
 };
 
 export class Sesion {
-    constructor({ userType, userId, colegioId, nombres, apellidos, email = null }) {
+    constructor({ userType, userId, colegioId, nombres, apellidos, email = null, token = null }) {
+        // El token lo emite login.php (BL-22) y viaja en cada petición como
+        // `Authorization: Bearer`. Es lo único que prueba quién eres.
+        this.token     = token;
         this.userType  = userType;
         this.userId    = userId;
         this.colegioId = colegioId;
@@ -23,7 +26,7 @@ export class Sesion {
 
     /** Espejo de UserSessionManager.isLoggedIn() */
     get estaAutenticada() {
-        return Boolean(this.userType && this.userId);
+        return Boolean(this.userType && this.userId && this.token);
     }
 
     get nombreCompleto() {
