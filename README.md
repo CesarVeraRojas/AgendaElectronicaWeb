@@ -81,8 +81,11 @@ src/
 ## Pruebas
 
 ```bash
-node tests/dominio.test.mjs     # reglas de negocio
-node tests/escapado.test.mjs    # defensa XSS
+node tests/dominio.test.mjs          # reglas de negocio
+node tests/escapado.test.mjs         # defensa XSS
+node tests/mappers.test.mjs          # formas de respuesta del backend
+node tests/sesion.test.mjs           # la sesión es un token (BL-22)
+node tests/sesion-expirada.test.mjs  # un token rechazado devuelve al login (BL-59)
 ```
 
 Corren sin navegador, sin red y sin base de datos: es la señal de que el dominio está aislado.

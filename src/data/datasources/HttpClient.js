@@ -13,7 +13,8 @@
  * Esta clase es el único punto del frontend que conoce `fetch`.
  */
 import { Config } from '../../core/config.js';
-import { ServerError, NetworkError } from '../../core/errors.js';
+import { ServerError, NetworkError, AuthError } from '../../core/errors.js';
+import { esTokenRechazado } from '../../core/sesionExpirada.js';
 
 export class HttpClient {
     /**
@@ -21,9 +22,14 @@ export class HttpClient {
      * @param {() => ({userId, userType}|null)} deps.proveedorDeSesion
      *        Función que devuelve la sesión actual. Se inyecta para que el
      *        cliente no dependa del repositorio de sesión ni del almacenamiento.
+     * @param {() => void} [deps.alRechazarElToken]
+     *        Se llama cuando el servidor rechaza nuestro token (BL-59). Se
+     *        inyecta por lo mismo: aquí no se sabe ni dónde vive la sesión ni
+     *        qué pantalla hay que mostrar después.
      */
-    constructor({ proveedorDeSesion, baseUrl = Config.BASE_URL }) {
+    constructor({ proveedorDeSesion, alRechazarElToken = null, baseUrl = Config.BASE_URL }) {
         this.proveedorDeSesion = proveedorDeSesion;
+        this.alRechazarElToken = alRechazarElToken;
         this.baseUrl = baseUrl;
     }
 
@@ -34,7 +40,14 @@ export class HttpClient {
     }
 
     /** Convierte la respuesta en objeto, con errores legibles para el usuario. */
-    async _procesar(res) {
+    async _procesar(res, url, seMandoToken) {
+        // Antes de mirar el cuerpo: si el servidor rechazó nuestro token, da
+        // igual lo que diga: la sesión se acabó y hay que volver a entrar.
+        if (esTokenRechazado(res.status, url, seMandoToken)) {
+            this.alRechazarElToken?.();
+            throw new AuthError();
+        }
+
         const texto = await res.text();
 
         let datos = null;
@@ -65,7 +78,8 @@ export class HttpClient {
         } catch (e) {
             throw new NetworkError();
         }
-        return this._procesar(res);
+        const seMandoToken = Boolean(opciones?.headers?.['Authorization']);
+        return this._procesar(res, url, seMandoToken);
     }
 
     /** GET — la identidad ya no viaja en el query string: sólo en la cabecera. */

@@ -6,7 +6,7 @@
  * La pantalla no sabe nada de la red: delega en el caso de uso IniciarSesion.
  */
 import { Casos }      from '../../core/container.js';
-import { navegar }    from '../router/index.js';
+import { navegar, EstadoRuta } from '../router/index.js';
 import { campoTexto, botonPrimario } from '../components/ui.js';
 import { avisoError } from '../components/avisos.js';
 
@@ -33,6 +33,13 @@ export function init() {
     const error = document.getElementById('login-error');
     const email = document.getElementById('email');
     const clave = document.getElementById('password');
+
+    // Se llega aquí expulsado por un token que el servidor ya no acepta (BL-59).
+    // Sin decirlo, volver de golpe al login parece un fallo de la aplicación.
+    if (EstadoRuta.sesionCaducada) {
+        error.textContent = 'Su sesión ha caducado. Inicie sesión de nuevo.';
+        error.hidden = false;
+    }
 
     const cargando = (activo) => {
         boton.disabled = activo;

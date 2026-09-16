@@ -10,6 +10,9 @@
  * se hace sustituyendo estas líneas, sin tocar dominio ni presentación.
  */
 
+// Core
+import { avisarSesionExpirada }   from './sesionExpirada.js';
+
 // Data — fuentes
 import { HttpClient }             from '../data/datasources/HttpClient.js';
 import { AgendaApiDataSource }    from '../data/datasources/AgendaApiDataSource.js';
@@ -76,7 +79,17 @@ function construir() {
 
     // HttpClient recibe un proveedor de sesión, no el repositorio entero:
     // así la capa de red no depende de dónde se guarda la sesión.
-    const httpClient    = new HttpClient({ proveedorDeSesion: () => sesionRepository.obtener() });
+    //
+    // Y recibe qué hacer si el servidor rechaza el token (BL-59): aquí se borra
+    // la sesión, que es lo que el contenedor sabe hacer, y se avisa. Quién
+    // navega a dónde lo decide main.js, porque el núcleo no conoce el router.
+    const httpClient    = new HttpClient({
+        proveedorDeSesion: () => sesionRepository.obtener(),
+        alRechazarElToken: () => {
+            sesionRepository.limpiar();
+            avisarSesionExpirada();
+        },
+    });
     const apiDataSource = new AgendaApiDataSource({ httpClient });
 
     // ── Repositorios ────────────────────────────────────────────
