@@ -32,6 +32,7 @@ import { NovedadRepositoryImpl }      from '../data/repositories/NovedadReposito
 import { ProfesionalRepositoryImpl }  from '../data/repositories/ProfesionalRepositoryImpl.js';
 import { ColegioRepositoryImpl }      from '../data/repositories/ColegioRepositoryImpl.js';
 import { PadreRepositoryImpl }        from '../data/repositories/PadreRepositoryImpl.js';
+import { InformeRepositoryImpl }      from '../data/repositories/InformeRepositoryImpl.js';
 
 // Domain — casos de uso
 import { IniciarSesion }             from '../domain/usecases/IniciarSesion.js';
@@ -71,6 +72,7 @@ import { ActualizarEstudiante }       from '../domain/usecases/ActualizarEstudia
 import { ActualizarGrupo }            from '../domain/usecases/ActualizarGrupo.js';
 import { ObtenerPadre }               from '../domain/usecases/ObtenerPadre.js';
 import { ObtenerProfesional }         from '../domain/usecases/ObtenerProfesional.js';
+import { ObtenerInformeAsistencia }   from '../domain/usecases/ObtenerInformeAsistencia.js';
 
 function construir() {
     // ── Fuentes de datos ────────────────────────────────────────
@@ -107,6 +109,7 @@ function construir() {
         profesionalRepository:  new ProfesionalRepositoryImpl({ apiDataSource }),
         colegioRepository:      new ColegioRepositoryImpl({ apiDataSource }),
         padreRepository:        new PadreRepositoryImpl({ apiDataSource }),
+        informeRepository:      new InformeRepositoryImpl({ apiDataSource }),
     };
 
     // ── Casos de uso ────────────────────────────────────────────
@@ -150,6 +153,7 @@ function construir() {
             actualizarGrupo:            new ActualizarGrupo(repos),
             obtenerPadre:               new ObtenerPadre(repos),
             obtenerProfesional:         new ObtenerProfesional(repos),
+            obtenerInformeAsistencia:   new ObtenerInformeAsistencia(repos),
         },
     };
 }

@@ -23,6 +23,8 @@ export class ObtenerMenuPorRol {
             opciones.push(new OpcionMenu({ texto: 'Crear Profesional',     icono: 'badge',          ruta: 'crear-profesional',         color: 'tertiary'  }));
             opciones.push(new OpcionMenu({ texto: 'Asignar Prof. a Grupo', icono: 'assignment_ind', ruta: 'asignar-profesional-grupo', color: 'primary'   }));
             opciones.push(new OpcionMenu({ texto: 'Actualizar Datos',      icono: 'manage_accounts', ruta: 'actualizar-datos',           color: 'secondary' }));
+            // E13: los informes son sólo del director, como el resto de este bloque.
+            opciones.push(new OpcionMenu({ texto: 'Informe Asistencia',    icono: 'assessment',     ruta: 'informe-asistencia',        color: 'tertiary'  }));
         }
 
         if (rol === Rol.PROFESIONAL || rol === Rol.DIRECTOR) {

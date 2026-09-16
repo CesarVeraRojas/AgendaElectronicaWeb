@@ -51,6 +51,14 @@ export class AgendaApiDataSource {
     actualizarProfesional(cuerpo)       { return this.http.post('actualizar_profesional.php', cuerpo); }
     asignarGruposAProfesional(asig)     { return this.http.post('asignar_profesional_grupo.php', asig); }
 
+    // ── Informes del director (E13) ─────────────────────────────
+    /** Resumen agregado: cuentas, no registros. Sin grupo_id, el colegio entero. */
+    getInformeAsistencia(anio, mes, grupoId = null) {
+        const params = { anio, mes };
+        if (grupoId !== null && grupoId !== '') params.grupo_id = grupoId;
+        return this.http.get('informe_asistencia.php', params);
+    }
+
     // ── Asistencia ──────────────────────────────────────────────
     crearAsistencia(asistencia)         { return this.http.post('crear_asistencia.php', asistencia); }
     /** Consulta del rol padre. listar_asistencias.php sólo admite profesional y director. */

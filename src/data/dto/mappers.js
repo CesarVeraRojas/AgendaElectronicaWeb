@@ -17,6 +17,7 @@ import { Mensaje, UsuarioMensaje, DestinatarioLectura } from '../../domain/entit
 import { Foto, FotosDeHijo }          from '../../domain/entities/Foto.js';
 import { Novedad }                    from '../../domain/entities/Novedad.js';
 import { Padre }                      from '../../domain/entities/Padre.js';
+import { InformeAsistencia, FilaAlumnoInforme } from '../../domain/entities/InformeAsistencia.js';
 
 /** Algunos endpoints devuelven listas, otros {data:[...]}; normaliza a array. */
 export function comoLista(json) {
@@ -328,3 +329,48 @@ function aColumnas(cambios, columnas) {
 export const desdeCambiosPadre       = (c) => aColumnas(c, COLUMNAS_PADRE);
 export const desdeCambiosProfesional = (c) => aColumnas(c, COLUMNAS_PROFESIONAL);
 export const desdeCambiosEstudiante  = (c) => aColumnas(c, COLUMNAS_ESTUDIANTE);
+
+/**
+ * aInformeAsistencia — Resumen de asistencia por grupo y mes (BL-55).
+ *
+ * `respondWithSuccess()` fusiona en la raíz, así que las claves cuelgan del
+ * objeto directamente: {success, periodo, grupo, totales, alumnos}. No hay
+ * `data` que abrir.
+ *
+ * Los porcentajes llegan como número o como null, y null NO es 0: significa que
+ * no se tomó asistencia. Convertirlo a 0 aquí sería inventarse un dato.
+ */
+export function aInformeAsistencia(json) {
+    const totales = json?.totales ?? {};
+
+    return new InformeAsistencia({
+        periodo: {
+            anio:  Number(json?.periodo?.anio ?? 0),
+            mes:   Number(json?.periodo?.mes ?? 0),
+            desde: json?.periodo?.desde ?? null,
+            hasta: json?.periodo?.hasta ?? null,
+        },
+        grupo: json?.grupo
+            ? { id: Number(json.grupo.id), nombreGrupo: json.grupo.nombre_grupo ?? '' }
+            : null,
+        totales: {
+            asistio:              Number(totales.asistio ?? 0),
+            tarde:                Number(totales.tarde ?? 0),
+            ausente:              Number(totales.ausente ?? 0),
+            registros:            Number(totales.registros ?? 0),
+            diasConRegistro:      Number(totales.dias_con_registro ?? 0),
+            porcentajeAsistencia: totales.porcentaje_asistencia ?? null,
+        },
+        totalAlumnos: Number(json?.total_alumnos ?? 0),
+        alumnos: (Array.isArray(json?.alumnos) ? json.alumnos : []).map(a => new FilaAlumnoInforme({
+            estudianteId:         Number(a.estudiante_id),
+            nombres:              a.nombres,
+            apellidos:            a.apellidos,
+            asistio:              Number(a.asistio ?? 0),
+            tarde:                Number(a.tarde ?? 0),
+            ausente:              Number(a.ausente ?? 0),
+            registros:            Number(a.registros ?? 0),
+            porcentajeAsistencia: a.porcentaje_asistencia ?? null,
+        })),
+    });
+}

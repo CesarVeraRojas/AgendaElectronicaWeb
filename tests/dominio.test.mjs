@@ -35,7 +35,11 @@ const dir  = new Sesion({ userType: Rol.DIRECTOR,    userId: 1, colegioId: 1, no
 const prof = new Sesion({ userType: Rol.PROFESIONAL, userId: 2, colegioId: 1, nombres: 'Luis' });
 const pad  = new Sesion({ userType: Rol.PADRE,       userId: 3, colegioId: null, nombres: 'Eva' });
 
-check('director → 10 opciones (5 admin + 4 prof + mensajes)', menu.ejecutar(dir).length === 10, `= ${menu.ejecutar(dir).length}`);
+check('director → 11 opciones (6 admin + 4 prof + mensajes)', menu.ejecutar(dir).length === 11, `= ${menu.ejecutar(dir).length}`);
+check('sólo el director ve el Informe de Asistencia',
+    menu.ejecutar(dir).some(o => o.ruta === 'informe-asistencia') &&
+    !menu.ejecutar(prof).some(o => o.ruta === 'informe-asistencia') &&
+    !menu.ejecutar(pad).some(o => o.ruta === 'informe-asistencia'));
 check('sólo el director ve Actualizar Datos',
     menu.ejecutar(dir).some(o => o.ruta === 'actualizar-datos') &&
     !menu.ejecutar(prof).some(o => o.ruta === 'actualizar-datos') &&

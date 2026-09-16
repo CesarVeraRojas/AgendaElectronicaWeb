@@ -364,3 +364,21 @@ body {
     .info-row { flex-direction: column; gap: 0; }
     .info-row__label { flex: none; }
 }
+
+/* ── Informe de asistencia (BL-55) ──────────────────────────────────────────
+   Filas, no tabla: cinco columnas no caben en un teléfono, y el informe se ve
+   en las dos aplicaciones. */
+.report-note { margin: var(--sp-sm) 0 var(--sp-md); font-size: 13px; color: var(--on-surface-variant); text-align: center; }
+.report-row { padding: var(--sp-md); margin-bottom: var(--sp-sm); border-left: 4px solid transparent; }
+.report-row--bien     { border-left-color: var(--secondary-dark); }
+.report-row--regular  { border-left-color: var(--tertiary-dark); }
+.report-row--bajo     { border-left-color: var(--error-dark); }
+.report-row--sin-datos{ border-left-color: var(--outline, #cfcfcf); }
+.report-row__head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-sm); }
+.report-row__name { font-weight: 500; }
+.report-row__counts { display: flex; flex-wrap: wrap; gap: var(--sp-md); margin: var(--sp-sm) 0 0; font-size: 13px; color: var(--on-surface-variant); }
+.report-row__empty { margin: var(--sp-sm) 0 0; font-size: 13px; font-style: italic; color: var(--on-surface-variant); }
+.badge--nivel-bien      { background: var(--secondary-container); color: var(--secondary-dark); }
+.badge--nivel-regular   { background: var(--tertiary-container);  color: var(--tertiary-dark); }
+.badge--nivel-bajo      { background: var(--error-container);     color: var(--error-dark); }
+.badge--nivel-sin-datos { background: var(--surface-variant);     color: var(--on-surface-variant); }
