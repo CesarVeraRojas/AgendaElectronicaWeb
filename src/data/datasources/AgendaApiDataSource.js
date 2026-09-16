@@ -59,6 +59,9 @@ export class AgendaApiDataSource {
         return this.http.get('informe_asistencia.php', params);
     }
 
+    /** Las cifras del colegio para la portada del director (BL-58). */
+    getResumenDelColegio()              { return this.http.get('resumen_colegio.php'); }
+
     // ── Asistencia ──────────────────────────────────────────────
     crearAsistencia(asistencia)         { return this.http.post('crear_asistencia.php', asistencia); }
     /** Consulta del rol padre. listar_asistencias.php sólo admite profesional y director. */

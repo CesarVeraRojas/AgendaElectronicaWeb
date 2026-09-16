@@ -73,6 +73,7 @@ import { ActualizarGrupo }            from '../domain/usecases/ActualizarGrupo.j
 import { ObtenerPadre }               from '../domain/usecases/ObtenerPadre.js';
 import { ObtenerProfesional }         from '../domain/usecases/ObtenerProfesional.js';
 import { ObtenerInformeAsistencia }   from '../domain/usecases/ObtenerInformeAsistencia.js';
+import { ObtenerResumenDelColegio }  from '../domain/usecases/ObtenerResumenDelColegio.js';
 
 function construir() {
     // ── Fuentes de datos ────────────────────────────────────────
@@ -154,6 +155,7 @@ function construir() {
             obtenerPadre:               new ObtenerPadre(repos),
             obtenerProfesional:         new ObtenerProfesional(repos),
             obtenerInformeAsistencia:   new ObtenerInformeAsistencia(repos),
+            obtenerResumenDelColegio:   new ObtenerResumenDelColegio(repos),
         },
     };
 }

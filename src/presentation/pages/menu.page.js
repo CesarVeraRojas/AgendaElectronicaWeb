@@ -12,6 +12,7 @@ import { html, esc, crudo }from '../components/html.js';
 import { topBar }          from '../components/ui.js';
 import { avisoError }      from '../components/avisos.js';
 import { textoContador }   from '../../domain/entities/Novedad.js';
+import { textoAsistenciaHoy } from '../../domain/entities/ResumenColegio.js';
 import {
     novedadesPendientes, suscribir, marcarVistas, olvidarNovedades, consultarAhora,
     avisosDisponibles, permisoAvisos, pedirPermisoAvisos,
@@ -50,10 +51,56 @@ export function render() {
                 <img class="menu-banner" src="assets/agenda_kids.jpeg" alt="" />
                 <h2 class="menu-greeting">Bienvenido, ${sesion?.nombres ?? ''}</h2>
                 <div id="menu-novedades"></div>
+                <div id="menu-portada"></div>
                 <div class="menu-grid">${crudo(tarjetas)}</div>
                 ${crudo(pie)}
             </div>
         </div>`;
+}
+
+/**
+ * Portada del director: las cifras del colegio de un vistazo (BL-58).
+ *
+ * Va en el menú y no en una pantalla propia porque son cifras, no una
+ * herramienta: si hay que navegar para verlas, no se ven.
+ */
+function pintarPortada(resumen) {
+    const zona = document.getElementById('menu-portada');
+    if (!zona) return;
+
+    const a = resumen.asistenciaHoy;
+
+    zona.innerHTML = html`
+        <section class="card portada">
+            <div class="portada__cifras">
+                <div class="portada__cifra">
+                    <span class="portada__num">${resumen.estudiantes}</span>
+                    <span class="portada__label">Alumnos</span>
+                </div>
+                <div class="portada__cifra">
+                    <span class="portada__num">${resumen.grupos}</span>
+                    <span class="portada__label">Grupos</span>
+                </div>
+                <div class="portada__cifra">
+                    <span class="portada__num">${resumen.profesionales}</span>
+                    <span class="portada__label">Profesionales</span>
+                </div>
+                <div class="portada__cifra">
+                    <span class="portada__num">${resumen.acudientes}</span>
+                    <span class="portada__label">Acudientes</span>
+                </div>
+            </div>
+
+            <p class="portada__hoy ${crudo(a.sinEmpezar || a.aMedias ? 'portada__hoy--aviso' : '')}">
+                ${textoAsistenciaHoy(a, resumen.estudiantes)}
+            </p>
+
+            ${crudo(a.registros > 0
+                ? html`<p class="portada__detalle">
+                        Hoy: ${a.asistio} asistió · ${a.tarde} tarde · ${a.ausente} ausente
+                       </p>`
+                : '')}
+        </section>`;
 }
 
 /** Tarjeta de novedades: lo que ha pasado y aún no se ha mirado. */
@@ -141,6 +188,18 @@ export async function init() {
         await Casos.cerrarSesion.ejecutar();
         navegar('login');
     });
+
+    // Portada del director (BL-58). Va después de las novedades y antes del
+    // pie, y si falla no se dice nada: son cifras de adorno, y un error aquí
+    // taparía el menú entero, que es lo único que el director necesita de
+    // verdad para trabajar.
+    if (sesion?.userType === Rol.DIRECTOR) {
+        try {
+            pintarPortada(await Casos.obtenerResumenDelColegio.ejecutar());
+        } catch (e) {
+            console.error('No se pudo cargar la portada del colegio:', e);
+        }
+    }
 
     // Pie con datos del colegio — sólo para padre y profesional (regla de MenuScreen.kt)
     const pie = document.getElementById('menu-footer');

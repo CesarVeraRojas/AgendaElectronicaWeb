@@ -18,6 +18,7 @@ import { Foto, FotosDeHijo }          from '../../domain/entities/Foto.js';
 import { Novedad }                    from '../../domain/entities/Novedad.js';
 import { Padre }                      from '../../domain/entities/Padre.js';
 import { InformeAsistencia, FilaAlumnoInforme } from '../../domain/entities/InformeAsistencia.js';
+import { ResumenColegio, AsistenciaDeHoy } from '../../domain/entities/ResumenColegio.js';
 
 /** Algunos endpoints devuelven listas, otros {data:[...]}; normaliza a array. */
 export function comoLista(json) {
@@ -384,5 +385,27 @@ export function aInformeAsistencia(json) {
             registros:            Number(a.registros ?? 0),
             porcentajeAsistencia: a.porcentaje_asistencia ?? null,
         })),
+    });
+}
+
+/** aResumenColegio — Las cifras de la portada del director (BL-58). */
+export function aResumenColegio(json) {
+    const t = json?.totales ?? {};
+    const a = json?.asistencia_hoy ?? {};
+
+    return new ResumenColegio({
+        colegioId:     json?.colegio_id ?? null,
+        estudiantes:   Number(t.estudiantes ?? 0),
+        grupos:        Number(t.grupos ?? 0),
+        profesionales: Number(t.profesionales ?? 0),
+        acudientes:    Number(t.acudientes ?? 0),
+        asistenciaHoy: new AsistenciaDeHoy({
+            fecha:        a.fecha ?? null,
+            asistio:      Number(a.asistio ?? 0),
+            tarde:        Number(a.tarde ?? 0),
+            ausente:      Number(a.ausente ?? 0),
+            registros:    Number(a.registros ?? 0),
+            sinRegistrar: Number(a.sin_registrar ?? 0),
+        }),
     });
 }

@@ -10,4 +10,9 @@ export class InformeRepository {
     async asistenciaPorGrupoYMes(filtro) {
         throw new Error('Sin implementar');
     }
+
+    /** @returns {Promise<import('../entities/ResumenColegio.js').ResumenColegio>} */
+    async resumenDelColegio() {
+        throw new Error('Sin implementar');
+    }
 }
