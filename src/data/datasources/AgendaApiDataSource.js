@@ -73,6 +73,13 @@ export class AgendaApiDataSource {
     // ── Agenda diaria ───────────────────────────────────────────
     guardarAgendaDiaria(agenda)         { return this.http.post('agenda_diaria.php', agenda); }
     getAgendaDiaria(estId, fecha)       { return this.http.get('agenda_diaria.php', { estudiante_id: estId, fecha }); }
+    /**
+     * Histórico por rango (BL-57). NO se manda `fecha`: con ella el endpoint
+     * toma el camino del día suelto, que es el que no se podía cambiar.
+     */
+    getAgendaDiariaPorRango(estId, desde, hasta) {
+        return this.http.get('agenda_diaria.php', { estudiante_id: estId, desde, hasta });
+    }
 
     // ── Fotos ───────────────────────────────────────────────────
     /** Android usa subir_foto_estudiante.php (ver FotosViewModel.kt:119). */

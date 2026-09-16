@@ -1,5 +1,5 @@
 import { AgendaDiariaRepository } from '../../domain/repositories/AgendaDiariaRepository.js';
-import { aAgendaDiaria, desdeAgendaDiaria } from '../dto/mappers.js';
+import { aAgendaDiaria, aSemanaDeAgenda, desdeAgendaDiaria } from '../dto/mappers.js';
 import { ServerError } from '../../core/errors.js';
 
 export class AgendaDiariaRepositoryImpl extends AgendaDiariaRepository {
@@ -28,5 +28,15 @@ export class AgendaDiariaRepositoryImpl extends AgendaDiariaRepository {
         const datos = Array.isArray(json) ? json[0] : (json.data ?? json);
         if (!datos || Object.keys(datos).length === 0) return null;
         return aAgendaDiaria(datos);
+    }
+
+    /**
+     * Histórico por rango (BL-57).
+     *
+     * Aquí NO hay que traducir ningún 404: el rango responde 200 con la lista
+     * vacía cuando no hay nada, porque una semana sin agenda no es un error.
+     */
+    async listarPorRango(estudianteId, desde, hasta) {
+        return aSemanaDeAgenda(await this.api.getAgendaDiariaPorRango(estudianteId, desde, hasta));
     }
 }

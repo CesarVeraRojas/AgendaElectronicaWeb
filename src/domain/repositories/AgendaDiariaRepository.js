@@ -5,4 +5,6 @@ export class AgendaDiariaRepository {
     guardar(agendaDiaria)              { noImplementado('AgendaDiariaRepository', 'guardar'); }
     /** @returns {Promise<AgendaDiaria|null>} */
     obtener(estudianteId, fecha)       { noImplementado('AgendaDiariaRepository', 'obtener'); }
+    /** @returns {Promise<AgendaDiaria[]>} */
+    listarPorRango(estudianteId, desde, hasta) { noImplementado('AgendaDiariaRepository', 'listarPorRango'); }
 }

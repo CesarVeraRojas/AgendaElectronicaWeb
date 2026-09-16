@@ -164,6 +164,18 @@ export function aAgendaDiaria(j) {
     });
 }
 
+/**
+ * La respuesta del rango (BL-57): {success, desde, hasta, dias:[…]}.
+ *
+ * Es una forma DISTINTA de la del día suelto, que llega como objeto pelado.
+ * Son dos caminos del mismo endpoint a propósito: el del día no se podía tocar
+ * sin romper la web y Android a la vez.
+ */
+export function aSemanaDeAgenda(json) {
+    const dias = Array.isArray(json?.dias) ? json.dias : [];
+    return dias.map(aAgendaDiaria).filter(Boolean);
+}
+
 export function desdeAgendaDiaria(a) {
     return {
         estudiante_id:                   a.estudianteId,
