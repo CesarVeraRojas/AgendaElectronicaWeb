@@ -41,6 +41,7 @@ import { ObtenerSesion }             from '../domain/usecases/ObtenerSesion.js';
 import { ObtenerMenuPorRol }         from '../domain/usecases/ObtenerMenuPorRol.js';
 import { ObtenerColegio }            from '../domain/usecases/ObtenerColegio.js';
 import { ObtenerGruposDelUsuario }   from '../domain/usecases/ObtenerGruposDelUsuario.js';
+import { ObtenerGruposDeProfesional } from '../domain/usecases/ObtenerGruposDeProfesional.js';
 import { ObtenerEstudiantesPorGrupo }from '../domain/usecases/ObtenerEstudiantesPorGrupo.js';
 import { RegistrarAsistencia }       from '../domain/usecases/RegistrarAsistencia.js';
 import { GuardarObservacion }        from '../domain/usecases/GuardarObservacion.js';
@@ -123,6 +124,7 @@ function construir() {
             obtenerMenuPorRol:          new ObtenerMenuPorRol(),
             obtenerColegio:             new ObtenerColegio(repos),
             obtenerGruposDelUsuario:    new ObtenerGruposDelUsuario(repos),
+            obtenerGruposDeProfesional: new ObtenerGruposDeProfesional(repos),
             obtenerEstudiantesPorGrupo: new ObtenerEstudiantesPorGrupo(repos),
             registrarAsistencia:        new RegistrarAsistencia(repos),
             guardarObservacion:         new GuardarObservacion(repos),

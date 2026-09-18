@@ -288,7 +288,12 @@ body {
 .month-nav__btn { color: var(--primary-dark); }
 .month-nav__btn:hover { background: var(--surface-variant); }
 .month-nav__btn:disabled { opacity: .35; cursor: default; }
-.month-nav__label { font-weight: 500; color: var(--primary-dark); text-transform: capitalize; }
+/* Sólo la primera letra: `capitalize` pone mayúscula a CADA palabra y escribía
+   "Septiembre De 2026". El mes llega en minúsculas desde toLocaleDateString.
+   El `inline-block` es imprescindible: ::first-letter no aplica a cajas en
+   línea, y este elemento es un <span>. Sin él el mes sale todo en minúscula. */
+.month-nav__label { font-weight: 500; color: var(--primary-dark); text-transform: lowercase; display: inline-block; }
+.month-nav__label::first-letter { text-transform: uppercase; }
 .att-summary { display: flex; justify-content: space-around; padding: var(--sp-md); text-align: center; }
 .att-summary__item { display: flex; flex-direction: column; gap: 2px; }
 .att-summary__num { font-size: 22px; font-weight: 600; color: var(--primary-dark); }

@@ -20,6 +20,7 @@ export function render() {
 
                 <section class="card card--section">
                     <h2 class="card__title">Grupos a Asignar</h2>
+                    <p class="pick-groups__status" id="aviso-asignacion" hidden></p>
                     <div class="card__body" id="lista-grupos"></div>
                 </section>
 
@@ -69,7 +70,39 @@ export async function init() {
         return;
     }
 
-    selProf.addEventListener('change', refrescarBoton);
+    // Al elegir profesional se marcan los grupos que YA tiene. Es imprescindible,
+    // no un adorno: el endpoint SUSTITUYE las asignaciones (borra las suyas e
+    // inserta las recibidas), así que con la lista en blanco el director que
+    // añadía un grupo dejaba al profesional sin los que tenía, y sin aviso.
+    // Lo que se ve marcado es exactamente lo que se va a guardar.
+    const aviso = document.getElementById('aviso-asignacion');
+    selProf.addEventListener('change', async () => {
+        contGrupos.querySelectorAll('input[type=checkbox]').forEach(c => { c.checked = false; });
+        refrescarBoton();
+
+        if (!selProf.value) { aviso.hidden = true; return; }
+
+        aviso.hidden = false;
+        aviso.textContent = 'Consultando sus grupos actuales…';
+        try {
+            const suyos = await Casos.obtenerGruposDeProfesional.ejecutar(sesion, selProf.value);
+            suyos.forEach(g => {
+                const c = document.getElementById(`grp-${g.id}`);
+                if (c) c.checked = true;
+            });
+            aviso.textContent = suyos.length
+                ? `Ya tiene ${suyos.length === 1 ? 'este grupo' : 'estos grupos'}: ${suyos.map(g => g.nombreGrupo).join(', ')}. ` +
+                  'Se guardará exactamente lo que quede marcado; si desmarca uno, se le quita.'
+                : 'Ahora mismo no tiene ningún grupo asignado.';
+        } catch (e) {
+            // Que no se pueda consultar no debe impedir asignar, pero el director
+            // tiene que saber que lo marcado puede no ser todo lo que hay.
+            aviso.textContent = 'No se pudieron consultar sus grupos actuales. ' +
+                'Cuidado: al guardar se sustituyen TODAS sus asignaciones por las que marque.';
+        } finally {
+            refrescarBoton();
+        }
+    });
 
     btn.addEventListener('click', async () => {
         btn.disabled = true;
@@ -81,6 +114,7 @@ export async function init() {
             avisoExito(msg);
             contGrupos.querySelectorAll('input[type=checkbox]').forEach(c => { c.checked = false; });
             selProf.value = '';
+            document.getElementById('aviso-asignacion').hidden = true;
         } catch (e) {
             avisoError(e.message);
         } finally {

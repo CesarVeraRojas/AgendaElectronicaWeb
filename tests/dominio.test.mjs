@@ -22,6 +22,7 @@ import { ActualizarGrupo }      from '../src/domain/usecases/ActualizarGrupo.js'
 import { ObtenerEstadoLectura } from '../src/domain/usecases/ObtenerEstadoLectura.js';
 import { Novedad, TipoNovedad, filtrarNoAvisadas, recortarClaves, textoContador } from '../src/domain/entities/Novedad.js';
 import { ObtenerNovedades }   from '../src/domain/usecases/ObtenerNovedades.js';
+import { ObtenerGruposDeProfesional } from '../src/domain/usecases/ObtenerGruposDeProfesional.js';
 
 let ok = 0, fail = 0;
 const check = (nombre, cond, extra='') => {
@@ -360,6 +361,38 @@ check('pero sí avanza la marca de tiempo', repo.guardadas === '2026-09-09 12:00
 
 caso.olvidar();
 check('al cerrar sesión se olvida lo guardado', repo.olvidado === true);
+
+console.log('\n── Grupos que ya tiene un profesional (pantalla de asignación) ──');
+{
+    // asignar_profesional_grupo.php SUSTITUYE las asignaciones, así que la
+    // pantalla tiene que enseñar lo que ya hay antes de que el director guarde.
+    const repo = {
+        pedido: null,
+        async listarPorProfesional(id) { this.pedido = id; return [{ id: 11, nombreGrupo: 'grupo4' }]; },
+    };
+    const caso = new ObtenerGruposDeProfesional({ grupoRepository: repo });
+
+    const grupos = await caso.ejecutar(dir, 12);
+    check('el director obtiene los grupos del profesional', grupos.length === 1 && grupos[0].id === 11);
+    check('y pregunta por el profesional indicado, no por sí mismo', repo.pedido === 12);
+
+    let fallo = null;
+    try { await caso.ejecutar(prof, 12); } catch (e) { fallo = e; }
+    check('un profesional no puede consultarlo', fallo !== null);
+
+    fallo = null;
+    try { await caso.ejecutar(pad, 12); } catch (e) { fallo = e; }
+    check('un acudiente tampoco', fallo !== null);
+
+    fallo = null;
+    try { await caso.ejecutar(null, 12); } catch (e) { fallo = e; }
+    check('sin sesión tampoco', fallo !== null);
+
+    repo.pedido = null;
+    const vacio = await caso.ejecutar(dir, '');
+    check('sin profesional elegido devuelve lista vacía sin llamar a la red',
+          vacio.length === 0 && repo.pedido === null);
+}
 
 console.log(`\n════════════════════\nResultado: ${ok} pasan, ${fail} fallan`);
 process.exit(fail ? 1 : 0);
