@@ -75,6 +75,8 @@ import { ObtenerPadre }               from '../domain/usecases/ObtenerPadre.js';
 import { ObtenerProfesional }         from '../domain/usecases/ObtenerProfesional.js';
 import { ObtenerInformeAsistencia }   from '../domain/usecases/ObtenerInformeAsistencia.js';
 import { ObtenerResumenDelColegio }  from '../domain/usecases/ObtenerResumenDelColegio.js';
+import { ObtenerFotosDelColegio }    from '../domain/usecases/ObtenerFotosDelColegio.js';
+import { EliminarFoto }              from '../domain/usecases/EliminarFoto.js';
 
 function construir() {
     // ── Fuentes de datos ────────────────────────────────────────
@@ -158,6 +160,8 @@ function construir() {
             obtenerProfesional:         new ObtenerProfesional(repos),
             obtenerInformeAsistencia:   new ObtenerInformeAsistencia(repos),
             obtenerResumenDelColegio:   new ObtenerResumenDelColegio(repos),
+            obtenerFotosDelColegio:     new ObtenerFotosDelColegio(repos),
+            eliminarFoto:               new EliminarFoto(repos),
         },
     };
 }

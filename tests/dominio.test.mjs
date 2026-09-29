@@ -36,7 +36,11 @@ const dir  = new Sesion({ userType: Rol.DIRECTOR,    userId: 1, colegioId: 1, no
 const prof = new Sesion({ userType: Rol.PROFESIONAL, userId: 2, colegioId: 1, nombres: 'Luis' });
 const pad  = new Sesion({ userType: Rol.PADRE,       userId: 3, colegioId: null, nombres: 'Eva' });
 
-check('director → 11 opciones (6 admin + 4 prof + mensajes)', menu.ejecutar(dir).length === 11, `= ${menu.ejecutar(dir).length}`);
+check('director → 12 opciones (7 admin + 4 prof + mensajes)', menu.ejecutar(dir).length === 12, `= ${menu.ejecutar(dir).length}`);
+check('sólo el director ve Fotos del Colegio (BL-61)',
+    menu.ejecutar(dir).some(o => o.ruta === 'fotos-colegio') &&
+    !menu.ejecutar(prof).some(o => o.ruta === 'fotos-colegio') &&
+    !menu.ejecutar(pad).some(o => o.ruta === 'fotos-colegio'));
 check('sólo el director ve el Informe de Asistencia',
     menu.ejecutar(dir).some(o => o.ruta === 'informe-asistencia') &&
     !menu.ejecutar(prof).some(o => o.ruta === 'informe-asistencia') &&

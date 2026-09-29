@@ -25,6 +25,8 @@ export class ObtenerMenuPorRol {
             opciones.push(new OpcionMenu({ texto: 'Actualizar Datos',      icono: 'manage_accounts', ruta: 'actualizar-datos',           color: 'secondary' }));
             // E13: los informes son sólo del director, como el resto de este bloque.
             opciones.push(new OpcionMenu({ texto: 'Informe Asistencia',    icono: 'assessment',     ruta: 'informe-asistencia',        color: 'tertiary'  }));
+            // BL-61: ver y borrar las fotos de todo el colegio. Borrar es sólo del director.
+            opciones.push(new OpcionMenu({ texto: 'Fotos del Colegio',     icono: 'photo_library',  ruta: 'fotos-colegio',             color: 'primary'   }));
         }
 
         if (rol === Rol.PROFESIONAL || rol === Rol.DIRECTOR) {

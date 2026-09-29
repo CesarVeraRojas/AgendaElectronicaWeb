@@ -33,6 +33,7 @@ const RUTAS = {
     'asignar-profesional-grupo': () => import('../pages/asignar-profesional-grupo.page.js'),
     'actualizar-datos':          () => import('../pages/actualizar-datos.page.js'),
     'informe-asistencia':        () => import('../pages/informe-asistencia.page.js'),
+    'fotos-colegio':             () => import('../pages/fotos-colegio.page.js'),
 };
 
 /** Única ruta pública, igual que en Android. */

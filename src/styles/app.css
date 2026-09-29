@@ -414,3 +414,27 @@ body {
 .portada__hoy { margin: var(--sp-md) 0 0; font-size: 14px; text-align: center; }
 .portada__hoy--aviso { color: var(--error-dark); font-weight: 500; }
 .portada__detalle { margin: 4px 0 0; font-size: 13px; color: var(--on-surface-variant); text-align: center; }
+
+/* ── Fotos del colegio, sólo director (BL-61) ──────────────────────────────── */
+.gallery-group + .gallery-group { margin-top: var(--sp-lg); }
+.gallery-more { margin: var(--sp-lg) 0; }
+.photo__caption { display: flex; justify-content: space-between; gap: var(--sp-xs); }
+.photo__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--on-surface); font-weight: 500; }
+
+.btn--danger { background: var(--on-error-container); color: var(--on-error); }
+.btn--danger:hover:not(:disabled) { background: #8E1515; }
+
+/* El visor con datos: la foto arriba ocupando lo que quede y el panel debajo,
+   para que el botón de eliminar nunca tape la foto que se va a borrar. */
+.lightbox--detalle { display: flex; flex-direction: column; align-items: center; padding: 72px var(--sp-md) var(--sp-md); gap: var(--sp-md); }
+.lightbox--detalle .lightbox__img { flex: 1 1 auto; min-height: 0; max-height: none; width: auto; max-width: 100%; }
+.lightbox__panel {
+    width: 100%; max-width: 480px; flex: none;
+    background: var(--surface); color: var(--on-surface);
+    border-radius: var(--radius-lg); padding: var(--sp-md);
+}
+.lightbox__title { margin: 0; font-size: 17px; font-weight: 600; }
+.lightbox__meta { margin: 4px 0 0; font-size: 13px; color: var(--on-surface-variant); }
+.lightbox__acciones { margin-top: var(--sp-md); }
+.lightbox__aviso { margin: var(--sp-md) 0 0; font-size: 14px; color: var(--on-error-container); }
+.lightbox__confirmar .acciones-fila { margin-top: var(--sp-sm); }

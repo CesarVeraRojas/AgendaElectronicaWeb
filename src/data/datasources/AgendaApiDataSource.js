@@ -93,6 +93,12 @@ export class AgendaApiDataSource {
         return this.http.postMultipart('subir_foto_estudiante.php', fd);
     }
     getFotosPorHijo(padreId)            { return this.http.get('get_fotos_por_hijo.php', { padre_id: padreId }); }
+    /** Galería del director (BL-60). Los filtros nulos no se envían; `antesDe` pide la página siguiente. */
+    getFotosDelColegio({ grupoId = null, estudianteId = null, antesDe = null } = {}) {
+        return this.http.get('fotos_colegio.php', { grupo_id: grupoId, estudiante_id: estudianteId, antes_de: antesDe });
+    }
+    /** Como los demás eliminar_*: POST con cuerpo JSON. Sólo director. */
+    eliminarFoto(fotoId)                { return this.http.post('eliminar_foto.php', { foto_id: fotoId }); }
 
     // ── Mensajería ──────────────────────────────────────────────
     getUsuariosParaMensajes(uid, tipo)  { return this.http.get('get_usuarios_para_mensajes.php', { user_id: uid, user_type: tipo }); }

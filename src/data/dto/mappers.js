@@ -15,6 +15,7 @@ import { AsistenciaRegistrada }       from '../../domain/entities/Asistencia.js'
 import { AgendaDiaria }               from '../../domain/entities/AgendaDiaria.js';
 import { Mensaje, UsuarioMensaje, DestinatarioLectura } from '../../domain/entities/Mensaje.js';
 import { Foto, FotosDeHijo }          from '../../domain/entities/Foto.js';
+import { FotoDelColegio, PaginaDeFotos } from '../../domain/entities/FotoDelColegio.js';
 import { Novedad }                    from '../../domain/entities/Novedad.js';
 import { Padre }                      from '../../domain/entities/Padre.js';
 import { InformeAsistencia, FilaAlumnoInforme } from '../../domain/entities/InformeAsistencia.js';
@@ -407,5 +408,32 @@ export function aResumenColegio(json) {
             registros:    Number(a.registros ?? 0),
             sinRegistrar: Number(a.sin_registrar ?? 0),
         }),
+    });
+}
+
+/**
+ * aPaginaDeFotos — Una página de la galería del director (BL-60).
+ *
+ * Como el resto de respuestas de `respondWithSuccess()`, las claves cuelgan de
+ * la raíz: {success, hoy, fotos, hay_mas, siguiente}. `subido_por` es null en
+ * las fotos anteriores a BL-60 y se deja null: no se sabe, no es un error.
+ */
+export function aPaginaDeFotos(json) {
+    return new PaginaDeFotos({
+        hoy:       json?.hoy ?? null,
+        hayMas:    json?.hay_mas === true,
+        siguiente: json?.siguiente ?? null,
+        fotos: (Array.isArray(json?.fotos) ? json.fotos : []).map(f => new FotoDelColegio({
+            id:               Number(f.id),
+            fotoUrl:          f.foto_url,
+            fechaSubida:      f.fecha_subida ?? null,
+            dia:              f.dia ?? String(f.fecha_subida ?? '').slice(0, 10),
+            estudianteId:     Number(f.estudiante_id),
+            estudianteNombre: f.estudiante_nombre ?? '',
+            grupos:           Array.isArray(f.grupos) ? f.grupos : [],
+            subidoPor:        f.subido_por?.nombre
+                                ? { tipo: f.subido_por.tipo, nombre: f.subido_por.nombre }
+                                : null,
+        })),
     });
 }
