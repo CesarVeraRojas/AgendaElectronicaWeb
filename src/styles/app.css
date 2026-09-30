@@ -451,3 +451,11 @@ body {
 .circ-imagen { display: block; width: 100%; max-height: 480px; object-fit: contain; border-radius: var(--radius-md); background: var(--surface-variant); margin-bottom: var(--sp-sm); }
 .read-row__sub { display: block; font-size: 12px; color: var(--on-surface-variant); overflow: hidden; text-overflow: ellipsis; }
 .field__ayuda { margin: 4px 0 var(--sp-md); font-size: 12px; color: var(--on-surface-variant); }
+
+/* ── Jardines, para soporte (BL-74) ───────────────────────── */
+#lista-jardines { display: flex; flex-direction: column; gap: var(--sp-md); padding-bottom: 72px; }
+.jardin__dato { display: flex; align-items: flex-start; gap: var(--sp-sm); margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+.jardin__dato .material-icons { font-size: 18px !important; color: var(--on-surface-variant); margin-top: 1px; }
+.jardin__dato--aviso { color: var(--on-tertiary-container); }
+.jardin__dato--aviso .material-icons { color: var(--on-tertiary-container); }
+.jardin__pie { margin: 0; font-size: 12px; color: var(--on-surface-variant); }

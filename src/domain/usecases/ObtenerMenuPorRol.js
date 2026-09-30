@@ -17,6 +17,12 @@ export class ObtenerMenuPorRol {
         const opciones = [];
         const rol = sesion.userType;
 
+        // BL-74: soporte sólo da de alta jardines. No es de ningún jardín, así
+        // que no tiene circulares ni mensajes.
+        if (rol === Rol.SOPORTE) {
+            return [new OpcionMenu({ texto: 'Jardines', icono: 'domain', ruta: 'jardines', color: 'primary' })];
+        }
+
         if (rol === Rol.DIRECTOR) {
             opciones.push(new OpcionMenu({ texto: 'Crear Estudiante',      icono: 'person_add',     ruta: 'crear-estudiante',          color: 'primary'   }));
             opciones.push(new OpcionMenu({ texto: 'Crear Grupo',           icono: 'group_add',      ruta: 'crear-grupo',               color: 'secondary' }));

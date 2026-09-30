@@ -138,6 +138,11 @@ export class AgendaApiDataSource {
     /** Qué familias la leyeron. Sólo director. */
     getLecturaCircular(circularId)      { return this.http.get('lectura_circular.php', { circular_id: circularId }); }
 
+    // ── Soporte (BL-74) ─────────────────────────────────────────
+    getJardines()                       { return this.http.get('soporte_jardines.php'); }
+    /** Jardín y primer director en una sola petición: el servidor los crea juntos o ninguno. */
+    altaJardin(cuerpo)                  { return this.http.post('soporte_alta_jardin.php', cuerpo); }
+
     // ── Avisos de novedades ─────────────────────────────────────
     /** `desde` es la hora que devolvió el servidor la vez anterior, o null la primera. */
     getNovedades(desde)                 { return this.http.get('get_novedades.php', { desde }); }

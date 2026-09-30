@@ -21,6 +21,7 @@ import { Padre }                      from '../../domain/entities/Padre.js';
 import { InformeAsistencia, FilaAlumnoInforme } from '../../domain/entities/InformeAsistencia.js';
 import { ResumenColegio, AsistenciaDeHoy } from '../../domain/entities/ResumenColegio.js';
 import { Circular, PaginaDeCirculares, LecturaDeCircular, FamiliaLectora } from '../../domain/entities/Circular.js';
+import { Jardin } from '../../domain/entities/Jardin.js';
 
 /** Algunos endpoints devuelven listas, otros {data:[...]}; normaliza a array. */
 export function comoLista(json) {
@@ -500,4 +501,31 @@ export function aLecturaDeCircular(json) {
             leidaEn:     d.leida_en ?? null,
         })),
     });
+}
+
+/** La lista de soporte_jardines.php (BL-74): {success, jardines:[…]}. */
+export function aJardines(json) {
+    return (Array.isArray(json?.jardines) ? json.jardines : []).map(j => new Jardin({
+        id:            Number(j.id),
+        nombre:        j.nombre ?? '',
+        direccion:     j.direccion ?? null,
+        correo:        j.correo ?? null,
+        creado:        j.creado ?? null,
+        directores:    Array.isArray(j.directores) ? j.directores.map(d => ({ nombre: d.nombre ?? '', email: d.email ?? '' })) : [],
+        alumnos:       Number(j.alumnos ?? 0),
+        grupos:        Number(j.grupos ?? 0),
+        profesionales: Number(j.profesionales ?? 0),
+        familias:      Number(j.familias ?? 0),
+        logo:          j.logo ?? null,
+        logoEsperado:  j.logo_esperado ?? null,
+    }));
+}
+
+/** La respuesta de soporte_alta_jardin.php. */
+export function aAltaDeJardin(json) {
+    return {
+        jardin:       { id: Number(json?.jardin?.id), nombre: json?.jardin?.nombre ?? '' },
+        director:     { id: Number(json?.director?.id), nombre: json?.director?.nombre ?? '', email: json?.director?.email ?? '' },
+        logoEsperado: json?.logo_esperado ?? null,
+    };
 }

@@ -9,6 +9,8 @@ export const Rol = {
     DIRECTOR:    'director',
     PROFESIONAL: 'profesional',
     PADRE:       'padre',
+    // BL-74: soporte de AgendaKids. No pertenece a ningún jardín; sólo da de alta jardines.
+    SOPORTE:     'soporte',
 };
 
 export class Sesion {
@@ -36,4 +38,5 @@ export class Sesion {
     esDirector()    { return this.userType === Rol.DIRECTOR; }
     esProfesional() { return this.userType === Rol.PROFESIONAL; }
     esPadre()       { return this.userType === Rol.PADRE; }
+    esSoporte()     { return this.userType === Rol.SOPORTE; }
 }

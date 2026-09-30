@@ -187,7 +187,9 @@ function enlazarNovedades() {
 }
 
 export async function init() {
-    cargarLogo();
+    const esSoporte = sesion?.userType === Rol.SOPORTE;
+    // Soporte no es de ningún jardín: ni logo propio ni novedades (BL-74).
+    if (!esSoporte) cargarLogo();
 
     // Navegación de las tarjetas
     document.querySelectorAll('.menu-card').forEach(card => {
@@ -197,9 +199,11 @@ export async function init() {
     // Novedades: lo que haya ahora y lo que vaya llegando mientras se mira el menú.
     // Al abrir el menú se pregunta al servidor, porque es la pantalla a la que
     // se llega tras iniciar sesión y la consulta del arranque fue sin sesión.
-    pintarNovedades(novedadesPendientes());
-    dejarDeEscuchar = suscribir(pintarNovedades);
-    consultarAhora();
+    if (!esSoporte) {
+        pintarNovedades(novedadesPendientes());
+        dejarDeEscuchar = suscribir(pintarNovedades);
+        consultarAhora();
+    }
 
     // Cerrar sesión
     document.getElementById('btn-logout')?.addEventListener('click', async () => {

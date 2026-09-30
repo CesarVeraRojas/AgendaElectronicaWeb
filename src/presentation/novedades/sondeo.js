@@ -91,6 +91,8 @@ async function consultar() {
     // Sin sesión no hay nada que preguntar, y no cuenta como consulta hecha:
     // así, al iniciar sesión, la primera del usuario sale enseguida.
     if (!SesionActual.existe()) return;
+    // Soporte no pertenece a ningún jardín: no tiene novedades (BL-74).
+    if (SesionActual.obtener()?.userType === 'soporte') return;
 
     ultimaConsulta = Date.now();
     try {

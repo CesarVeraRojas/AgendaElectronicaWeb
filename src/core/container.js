@@ -34,6 +34,7 @@ import { ColegioRepositoryImpl }      from '../data/repositories/ColegioReposito
 import { PadreRepositoryImpl }        from '../data/repositories/PadreRepositoryImpl.js';
 import { InformeRepositoryImpl }      from '../data/repositories/InformeRepositoryImpl.js';
 import { CircularRepositoryImpl }     from '../data/repositories/CircularRepositoryImpl.js';
+import { JardinRepositoryImpl }       from '../data/repositories/JardinRepositoryImpl.js';
 
 // Domain — casos de uso
 import { IniciarSesion }             from '../domain/usecases/IniciarSesion.js';
@@ -83,6 +84,7 @@ import { PublicarCircular }          from '../domain/usecases/PublicarCircular.j
 import { EliminarCircular }          from '../domain/usecases/EliminarCircular.js';
 import { MarcarCircularLeida }       from '../domain/usecases/MarcarCircularLeida.js';
 import { ObtenerLogoDelColegio }     from '../domain/usecases/ObtenerLogoDelColegio.js';
+import { AdministrarJardines }       from '../domain/usecases/AdministrarJardines.js';
 
 function construir() {
     // ── Fuentes de datos ────────────────────────────────────────
@@ -121,6 +123,7 @@ function construir() {
         padreRepository:        new PadreRepositoryImpl({ apiDataSource }),
         informeRepository:      new InformeRepositoryImpl({ apiDataSource }),
         circularRepository:     new CircularRepositoryImpl({ apiDataSource }),
+        jardinRepository:       new JardinRepositoryImpl({ apiDataSource }),
     };
 
     // ── Casos de uso ────────────────────────────────────────────
@@ -174,6 +177,7 @@ function construir() {
             eliminarCircular:           new EliminarCircular(repos),
             marcarCircularLeida:        new MarcarCircularLeida(repos),
             obtenerLogoDelColegio:      new ObtenerLogoDelColegio(repos),
+            administrarJardines:        new AdministrarJardines(repos),
         },
     };
 }

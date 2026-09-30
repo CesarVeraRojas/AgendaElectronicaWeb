@@ -37,6 +37,8 @@ const RUTAS = {
     'circulares':                () => import('../pages/circulares.page.js'),
     'circular':                  () => import('../pages/circular.page.js'),
     'publicar-circular':         () => import('../pages/publicar-circular.page.js'),
+    'jardines':                  () => import('../pages/jardines.page.js'),
+    'alta-jardin':               () => import('../pages/alta-jardin.page.js'),
 };
 
 /** Única ruta pública, igual que en Android. */
