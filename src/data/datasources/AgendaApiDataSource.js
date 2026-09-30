@@ -118,6 +118,26 @@ export class AgendaApiDataSource {
     marcarMensajeLeido(mensajeId)       { return this.http.post('marcar_mensaje_leido.php', { mensaje_id: mensajeId }); }
     getEstadoLectura(mensajeId)         { return this.http.get('get_estado_lectura.php', { mensaje_id: mensajeId }); }
 
+    // ── Circulares (BL-70) ──────────────────────────────────────
+    /** Las que puede ver quien tiene la sesión. `antesDe` pide la página siguiente. */
+    getCirculares(antesDe = null)       { return this.http.get('circulares.php', { antes_de: antesDe }); }
+
+    /** Sólo director. Siempre multipart: con o sin archivo, el servidor lee lo mismo. */
+    publicarCircular({ titulo, texto, grupoId, adjunto }) {
+        const fd = new FormData();
+        fd.append('titulo', titulo);
+        fd.append('texto', texto ?? '');
+        if (grupoId !== null && grupoId !== undefined && grupoId !== '') fd.append('grupo_id', grupoId);
+        if (adjunto) fd.append('adjunto', adjunto, adjunto.name);
+        return this.http.postMultipart('publicar_circular.php', fd);
+    }
+
+    /** Como los demás eliminar_*: POST con cuerpo JSON. Sólo director. */
+    eliminarCircular(circularId)        { return this.http.post('eliminar_circular.php', { circular_id: circularId }); }
+    marcarCircularLeida(circularId)     { return this.http.post('marcar_circular_leida.php', { circular_id: circularId }); }
+    /** Qué familias la leyeron. Sólo director. */
+    getLecturaCircular(circularId)      { return this.http.get('lectura_circular.php', { circular_id: circularId }); }
+
     // ── Avisos de novedades ─────────────────────────────────────
     /** `desde` es la hora que devolvió el servidor la vez anterior, o null la primera. */
     getNovedades(desde)                 { return this.http.get('get_novedades.php', { desde }); }

@@ -8,7 +8,7 @@ import { Rol }        from '../entities/Sesion.js';
  *   director    → 4 opciones de administración + las 4 de profesional
  *   profesional → 4 opciones (Asistencia, Observaciones, Agenda Diaria, Fotos)
  *   padre       → 4 opciones (Agenda, Observaciones, Fotos y Asistencia de su hijo)
- *   todos       → Mensajes al final
+ *   todos       → Circulares y Mensajes al final
  */
 export class ObtenerMenuPorRol {
     ejecutar(sesion) {
@@ -43,6 +43,9 @@ export class ObtenerMenuPorRol {
             opciones.push(new OpcionMenu({ texto: 'Asistencia',    icono: 'check_circle',   ruta: 'asistencia-hijo',     color: 'primary'   }));
         }
 
+        // BL-70: las circulares, para los tres roles. Publicar y retirar es sólo
+        // del director, y eso lo decide el servidor, no el menú.
+        opciones.push(new OpcionMenu({ texto: 'Circulares', icono: 'campaign', ruta: 'circulares', color: 'secondary' }));
         opciones.push(new OpcionMenu({ texto: 'Mensajes', icono: 'email', ruta: 'mensajes', color: 'tertiary' }));
 
         return opciones;

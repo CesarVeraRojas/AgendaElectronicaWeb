@@ -125,7 +125,7 @@ function pintarNovedades(novedades) {
 
     const filas = novedades.slice(0, 5).map(n => html`
         <button class="novedades__fila" data-ruta="${n.rutaDestino()}">
-            <span class="material-icons">${n.tipo === 'mensaje' ? 'mail' : n.tipo === 'agenda' ? 'event_note' : 'sticky_note_2'}</span>
+            <span class="material-icons">${n.icono()}</span>
             <span class="novedades__fila-texto">
                 <strong>${n.titulo}</strong>
                 <em>${n.texto}</em>

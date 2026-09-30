@@ -34,6 +34,9 @@ const RUTAS = {
     'actualizar-datos':          () => import('../pages/actualizar-datos.page.js'),
     'informe-asistencia':        () => import('../pages/informe-asistencia.page.js'),
     'fotos-colegio':             () => import('../pages/fotos-colegio.page.js'),
+    'circulares':                () => import('../pages/circulares.page.js'),
+    'circular':                  () => import('../pages/circular.page.js'),
+    'publicar-circular':         () => import('../pages/publicar-circular.page.js'),
 };
 
 /** Única ruta pública, igual que en Android. */

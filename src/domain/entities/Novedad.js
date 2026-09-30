@@ -7,6 +7,7 @@ export const TipoNovedad = {
     MENSAJE:     'mensaje',
     OBSERVACION: 'observacion',
     AGENDA:      'agenda',
+    CIRCULAR:    'circular',
 };
 
 /** A qué pantalla lleva cada tipo de aviso. */
@@ -14,6 +15,15 @@ const RUTA_POR_TIPO = {
     [TipoNovedad.MENSAJE]:     'mensajes',
     [TipoNovedad.OBSERVACION]: 'observaciones-hijo',
     [TipoNovedad.AGENDA]:      'agenda-diaria-hijo',
+    [TipoNovedad.CIRCULAR]:    'circulares',
+};
+
+/** El icono de cada tipo en la tarjeta de novedades del menú. */
+const ICONO_POR_TIPO = {
+    [TipoNovedad.MENSAJE]:     'mail',
+    [TipoNovedad.OBSERVACION]: 'sticky_note_2',
+    [TipoNovedad.AGENDA]:      'event_note',
+    [TipoNovedad.CIRCULAR]:    'campaign',
 };
 
 export class Novedad {
@@ -31,6 +41,11 @@ export class Novedad {
     /** Pantalla que hay que abrir al pulsar el aviso. */
     rutaDestino() {
         return RUTA_POR_TIPO[this.tipo] ?? 'menu';
+    }
+
+    /** Icono de Material para la tarjeta de novedades. */
+    icono() {
+        return ICONO_POR_TIPO[this.tipo] ?? 'notifications';
     }
 }
 

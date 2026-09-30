@@ -33,6 +33,7 @@ import { ProfesionalRepositoryImpl }  from '../data/repositories/ProfesionalRepo
 import { ColegioRepositoryImpl }      from '../data/repositories/ColegioRepositoryImpl.js';
 import { PadreRepositoryImpl }        from '../data/repositories/PadreRepositoryImpl.js';
 import { InformeRepositoryImpl }      from '../data/repositories/InformeRepositoryImpl.js';
+import { CircularRepositoryImpl }     from '../data/repositories/CircularRepositoryImpl.js';
 
 // Domain — casos de uso
 import { IniciarSesion }             from '../domain/usecases/IniciarSesion.js';
@@ -77,6 +78,10 @@ import { ObtenerInformeAsistencia }   from '../domain/usecases/ObtenerInformeAsi
 import { ObtenerResumenDelColegio }  from '../domain/usecases/ObtenerResumenDelColegio.js';
 import { ObtenerFotosDelColegio }    from '../domain/usecases/ObtenerFotosDelColegio.js';
 import { EliminarFoto }              from '../domain/usecases/EliminarFoto.js';
+import { ObtenerCirculares }         from '../domain/usecases/ObtenerCirculares.js';
+import { PublicarCircular }          from '../domain/usecases/PublicarCircular.js';
+import { EliminarCircular }          from '../domain/usecases/EliminarCircular.js';
+import { MarcarCircularLeida }       from '../domain/usecases/MarcarCircularLeida.js';
 
 function construir() {
     // ── Fuentes de datos ────────────────────────────────────────
@@ -114,6 +119,7 @@ function construir() {
         colegioRepository:      new ColegioRepositoryImpl({ apiDataSource }),
         padreRepository:        new PadreRepositoryImpl({ apiDataSource }),
         informeRepository:      new InformeRepositoryImpl({ apiDataSource }),
+        circularRepository:     new CircularRepositoryImpl({ apiDataSource }),
     };
 
     // ── Casos de uso ────────────────────────────────────────────
@@ -162,6 +168,10 @@ function construir() {
             obtenerResumenDelColegio:   new ObtenerResumenDelColegio(repos),
             obtenerFotosDelColegio:     new ObtenerFotosDelColegio(repos),
             eliminarFoto:               new EliminarFoto(repos),
+            obtenerCirculares:          new ObtenerCirculares(repos),
+            publicarCircular:           new PublicarCircular(repos),
+            eliminarCircular:           new EliminarCircular(repos),
+            marcarCircularLeida:        new MarcarCircularLeida(repos),
         },
     };
 }

@@ -36,7 +36,7 @@ const dir  = new Sesion({ userType: Rol.DIRECTOR,    userId: 1, colegioId: 1, no
 const prof = new Sesion({ userType: Rol.PROFESIONAL, userId: 2, colegioId: 1, nombres: 'Luis' });
 const pad  = new Sesion({ userType: Rol.PADRE,       userId: 3, colegioId: null, nombres: 'Eva' });
 
-check('director → 12 opciones (7 admin + 4 prof + mensajes)', menu.ejecutar(dir).length === 12, `= ${menu.ejecutar(dir).length}`);
+check('director → 13 opciones (7 admin + 4 prof + circulares + mensajes)', menu.ejecutar(dir).length === 13, `= ${menu.ejecutar(dir).length}`);
 check('sólo el director ve Fotos del Colegio (BL-61)',
     menu.ejecutar(dir).some(o => o.ruta === 'fotos-colegio') &&
     !menu.ejecutar(prof).some(o => o.ruta === 'fotos-colegio') &&
@@ -49,8 +49,12 @@ check('sólo el director ve Actualizar Datos',
     menu.ejecutar(dir).some(o => o.ruta === 'actualizar-datos') &&
     !menu.ejecutar(prof).some(o => o.ruta === 'actualizar-datos') &&
     !menu.ejecutar(pad).some(o => o.ruta === 'actualizar-datos'));
-check('profesional → 5 opciones (4 + mensajes)',             menu.ejecutar(prof).length === 5, `= ${menu.ejecutar(prof).length}`);
-check('padre → 5 opciones (4 + mensajes)',                   menu.ejecutar(pad).length === 5,  `= ${menu.ejecutar(pad).length}`);
+check('profesional → 6 opciones (4 + circulares + mensajes)', menu.ejecutar(prof).length === 6, `= ${menu.ejecutar(prof).length}`);
+check('padre → 6 opciones (4 + circulares + mensajes)',       menu.ejecutar(pad).length === 6,  `= ${menu.ejecutar(pad).length}`);
+check('los tres roles ven Circulares, justo antes de Mensajes (BL-70)', ['director','profesional','padre'].every(r => {
+    const ops = menu.ejecutar(new Sesion({userType:r,userId:1}));
+    return ops.at(-2).ruta === 'circulares';
+}));
 check('padre ve su asistencia, no la de registro',
     menu.ejecutar(pad).some(o => o.ruta === 'asistencia-hijo') &&
     !menu.ejecutar(pad).some(o => o.ruta === 'asistencia'));

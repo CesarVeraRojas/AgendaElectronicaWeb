@@ -20,6 +20,7 @@ import { Novedad }                    from '../../domain/entities/Novedad.js';
 import { Padre }                      from '../../domain/entities/Padre.js';
 import { InformeAsistencia, FilaAlumnoInforme } from '../../domain/entities/InformeAsistencia.js';
 import { ResumenColegio, AsistenciaDeHoy } from '../../domain/entities/ResumenColegio.js';
+import { Circular, PaginaDeCirculares, LecturaDeCircular, FamiliaLectora } from '../../domain/entities/Circular.js';
 
 /** Algunos endpoints devuelven listas, otros {data:[...]}; normaliza a array. */
 export function comoLista(json) {
@@ -434,6 +435,59 @@ export function aPaginaDeFotos(json) {
             subidoPor:        f.subido_por?.nombre
                                 ? { tipo: f.subido_por.tipo, nombre: f.subido_por.nombre }
                                 : null,
+        })),
+    });
+}
+
+/**
+ * aCircular — Una circular tal como la devuelven circulares.php y
+ * publicar_circular.php (BL-70).
+ *
+ * `leida` sólo llega al acudiente y el acuse (`total_*`) sólo al director: a
+ * los demás se les deja en null, que quiere decir "este rol no lleva la
+ * cuenta", no "nadie la ha leído".
+ */
+export function aCircular(j) {
+    const numeroONull = (v) => (v === null || v === undefined || v === '') ? null : Number(v);
+    return new Circular({
+        id:                 Number(j.id),
+        titulo:             j.titulo ?? '',
+        texto:              j.texto ?? '',
+        adjuntoUrl:         j.adjunto_url ?? null,
+        adjuntoNombre:      j.adjunto_nombre ?? null,
+        adjuntoTipo:        j.adjunto_tipo ?? null,
+        grupoId:            numeroONull(j.grupo_id),
+        grupoNombre:        j.grupo_nombre ?? null,
+        fechaPublicacion:   j.fecha_publicacion ?? null,
+        dia:                j.dia ?? String(j.fecha_publicacion ?? '').slice(0, 10),
+        publicadaPor:       j.publicada_por ?? null,
+        leida:              typeof j.leida === 'boolean' ? j.leida : null,
+        totalDestinatarios: numeroONull(j.total_destinatarios),
+        totalLeidas:        numeroONull(j.total_leidas),
+    });
+}
+
+/** Una página del listado: {success, hoy, circulares, hay_mas, siguiente}. */
+export function aPaginaDeCirculares(json) {
+    return new PaginaDeCirculares({
+        hoy:        json?.hoy ?? null,
+        hayMas:     json?.hay_mas === true,
+        siguiente:  json?.siguiente ?? null,
+        circulares: (Array.isArray(json?.circulares) ? json.circulares : []).map(aCircular),
+    });
+}
+
+/** El acuse del director: {success, total, leidas, destinatarios:[…]}. */
+export function aLecturaDeCircular(json) {
+    return new LecturaDeCircular({
+        total:  Number(json?.total ?? 0),
+        leidas: Number(json?.leidas ?? 0),
+        destinatarios: (Array.isArray(json?.destinatarios) ? json.destinatarios : []).map(d => new FamiliaLectora({
+            padreId:     Number(d.padre_id),
+            nombre:      d.nombre ?? '',
+            estudiantes: Array.isArray(d.estudiantes) ? d.estudiantes : [],
+            leida:       d.leida === true,
+            leidaEn:     d.leida_en ?? null,
         })),
     });
 }
