@@ -1,5 +1,5 @@
 import { ColegioRepository } from '../../domain/repositories/ColegioRepository.js';
-import { aColegio }          from '../dto/mappers.js';
+import { aColegio, aLogoDelColegio } from '../dto/mappers.js';
 
 export class ColegioRepositoryImpl extends ColegioRepository {
     constructor({ apiDataSource }) {
@@ -12,5 +12,9 @@ export class ColegioRepositoryImpl extends ColegioRepository {
         // get_colegio_details.php responde {success:true, colegio:{nombre, direccion}}:
         // respondWithSuccess() fusiona la clave en la raíz, no la anida bajo "data".
         return aColegio(json?.colegio ?? json?.data ?? json);
+    }
+
+    async obtenerLogo() {
+        return aLogoDelColegio(await this.api.getLogoColegio());
     }
 }

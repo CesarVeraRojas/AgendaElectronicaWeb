@@ -13,6 +13,7 @@ import { topBar }          from '../components/ui.js';
 import { avisoError }      from '../components/avisos.js';
 import { textoContador }   from '../../domain/entities/Novedad.js';
 import { textoAsistenciaHoy } from '../../domain/entities/ResumenColegio.js';
+import { LOGO_AGENDAKIDS } from '../../domain/usecases/ObtenerLogoDelColegio.js';
 import {
     novedadesPendientes, suscribir, marcarVistas, olvidarNovedades, consultarAhora,
     avisosDisponibles, permisoAvisos, pedirPermisoAvisos,
@@ -48,7 +49,7 @@ export function render() {
                 acciones: [{ id: 'btn-logout', icono: 'logout', titulo: 'Cerrar sesión' }],
             }))}
             <div class="page-content menu-content">
-                <img class="menu-banner" src="assets/agenda_kids.jpeg" alt="" />
+                <img class="menu-banner" id="menu-logo" src="${Casos.obtenerLogoDelColegio.inmediato(sesion)}" alt="" />
                 <h2 class="menu-greeting">Bienvenido, ${sesion?.nombres ?? ''}</h2>
                 <div id="menu-novedades"></div>
                 <div id="menu-portada"></div>
@@ -101,6 +102,22 @@ function pintarPortada(resumen) {
                        </p>`
                 : '')}
         </section>`;
+}
+
+/**
+ * El logo del jardín (BL-75), en lugar del de AgendaKids, si soporte lo subió.
+ * Si la imagen no carga, vuelve el de AgendaKids: un logo roto no puede quedar
+ * en la portada.
+ */
+async function cargarLogo() {
+    const img = document.getElementById('menu-logo');
+    if (!img) return;
+    img.onerror = () => {
+        img.onerror = null;
+        img.src = LOGO_AGENDAKIDS;
+    };
+    const url = await Casos.obtenerLogoDelColegio.ejecutar(sesion);
+    if (img.isConnected && img.getAttribute('src') !== url) img.src = url;
 }
 
 /** Tarjeta de novedades: lo que ha pasado y aún no se ha mirado. */
@@ -170,6 +187,8 @@ function enlazarNovedades() {
 }
 
 export async function init() {
+    cargarLogo();
+
     // Navegación de las tarjetas
     document.querySelectorAll('.menu-card').forEach(card => {
         card.addEventListener('click', () => navegar(card.dataset.ruta));

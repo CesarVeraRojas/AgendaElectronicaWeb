@@ -144,4 +144,6 @@ export class AgendaApiDataSource {
 
     // ── Colegio ─────────────────────────────────────────────────
     getColegioDetails(colegioId)        { return this.http.get('get_colegio_details.php', { colegio_id: colegioId }); }
+    /** El logo del jardín de quien tiene la sesión (BL-75). El colegio lo decide el servidor. */
+    getLogoColegio()                    { return this.http.get('logo_colegio.php'); }
 }

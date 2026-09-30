@@ -440,6 +440,16 @@ export function aPaginaDeFotos(json) {
 }
 
 /**
+ * aLogoDelColegio — La URL del logo de logo_colegio.php (BL-75), o null si el
+ * jardín no tiene. Sólo se acepta una URL http(s): cualquier otra cosa se trata
+ * como "sin logo" y se queda el de AgendaKids.
+ */
+export function aLogoDelColegio(json) {
+    const url = json?.logo_url;
+    return (typeof url === 'string' && /^https?:\/\//.test(url)) ? url : null;
+}
+
+/**
  * aCircular — Una circular tal como la devuelven circulares.php y
  * publicar_circular.php (BL-70).
  *

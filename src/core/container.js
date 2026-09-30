@@ -82,6 +82,7 @@ import { ObtenerCirculares }         from '../domain/usecases/ObtenerCirculares.
 import { PublicarCircular }          from '../domain/usecases/PublicarCircular.js';
 import { EliminarCircular }          from '../domain/usecases/EliminarCircular.js';
 import { MarcarCircularLeida }       from '../domain/usecases/MarcarCircularLeida.js';
+import { ObtenerLogoDelColegio }     from '../domain/usecases/ObtenerLogoDelColegio.js';
 
 function construir() {
     // ── Fuentes de datos ────────────────────────────────────────
@@ -172,6 +173,7 @@ function construir() {
             publicarCircular:           new PublicarCircular(repos),
             eliminarCircular:           new EliminarCircular(repos),
             marcarCircularLeida:        new MarcarCircularLeida(repos),
+            obtenerLogoDelColegio:      new ObtenerLogoDelColegio(repos),
         },
     };
 }
