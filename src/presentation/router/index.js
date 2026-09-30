@@ -38,6 +38,9 @@ const RUTAS = {
     'circular':                  () => import('../pages/circular.page.js'),
     'publicar-circular':         () => import('../pages/publicar-circular.page.js'),
     'jardines':                  () => import('../pages/jardines.page.js'),
+    'eventos':                   () => import('../pages/eventos.page.js'),
+    'evento':                    () => import('../pages/evento.page.js'),
+    'editar-evento':             () => import('../pages/editar-evento.page.js'),
     'alta-jardin':               () => import('../pages/alta-jardin.page.js'),
 };
 

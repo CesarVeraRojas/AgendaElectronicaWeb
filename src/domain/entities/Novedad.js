@@ -8,6 +8,7 @@ export const TipoNovedad = {
     OBSERVACION: 'observacion',
     AGENDA:      'agenda',
     CIRCULAR:    'circular',
+    EVENTO:      'evento',
 };
 
 /** A qué pantalla lleva cada tipo de aviso. */
@@ -16,6 +17,7 @@ const RUTA_POR_TIPO = {
     [TipoNovedad.OBSERVACION]: 'observaciones-hijo',
     [TipoNovedad.AGENDA]:      'agenda-diaria-hijo',
     [TipoNovedad.CIRCULAR]:    'circulares',
+    [TipoNovedad.EVENTO]:      'eventos',
 };
 
 /** El icono de cada tipo en la tarjeta de novedades del menú. */
@@ -24,6 +26,7 @@ const ICONO_POR_TIPO = {
     [TipoNovedad.OBSERVACION]: 'sticky_note_2',
     [TipoNovedad.AGENDA]:      'event_note',
     [TipoNovedad.CIRCULAR]:    'campaign',
+    [TipoNovedad.EVENTO]:      'event',
 };
 
 export class Novedad {

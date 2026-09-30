@@ -14,6 +14,7 @@ import { avisoError }      from '../components/avisos.js';
 import { textoContador }   from '../../domain/entities/Novedad.js';
 import { textoAsistenciaHoy } from '../../domain/entities/ResumenColegio.js';
 import { LOGO_AGENDAKIDS } from '../../domain/usecases/ObtenerLogoDelColegio.js';
+import { proximoEvento, textoFechaEvento, colorDeEvento } from '../../domain/entities/Evento.js';
 import {
     novedadesPendientes, suscribir, marcarVistas, olvidarNovedades, consultarAhora,
     avisosDisponibles, permisoAvisos, pedirPermisoAvisos,
@@ -52,6 +53,7 @@ export function render() {
                 <img class="menu-banner" id="menu-logo" src="${Casos.obtenerLogoDelColegio.inmediato(sesion)}" alt="" />
                 <h2 class="menu-greeting">Bienvenido, ${sesion?.nombres ?? ''}</h2>
                 <div id="menu-novedades"></div>
+                <div id="menu-proximo"></div>
                 <div id="menu-portada"></div>
                 <div class="menu-grid">${crudo(tarjetas)}</div>
                 ${crudo(pie)}
@@ -118,6 +120,32 @@ async function cargarLogo() {
     };
     const url = await Casos.obtenerLogoDelColegio.ejecutar(sesion);
     if (img.isConnected && img.getAttribute('src') !== url) img.src = url;
+}
+
+/**
+ * El próximo evento del calendario (BL-76), como una tarjeta que lleva al
+ * calendario. Si no hay o falla, no se pinta nada: es un atajo, no el menú.
+ */
+async function cargarProximoEvento() {
+    const zona = document.getElementById('menu-proximo');
+    if (!zona) return;
+    try {
+        const cal = await Casos.administrarEventos.listar();
+        const ev = proximoEvento(cal.eventos, cal.hoy);
+        if (!ev || !zona.isConnected) return;
+        zona.innerHTML = html`
+            <button class="menu-proximo" style="--color-evento: ${colorDeEvento(ev.color)}" id="btn-proximo">
+                <span class="material-icons">event</span>
+                <span class="menu-proximo__texto">
+                    <em>Próximo evento</em>
+                    <strong>${ev.titulo}</strong>
+                    <span>${textoFechaEvento(ev, cal.hoy)}</span>
+                </span>
+            </button>`;
+        document.getElementById('btn-proximo').addEventListener('click', () => navegar('evento', { evento: ev, calendario: cal }));
+    } catch (e) {
+        // Silencio a propósito, como la portada.
+    }
 }
 
 /** Tarjeta de novedades: lo que ha pasado y aún no se ha mirado. */
@@ -200,6 +228,7 @@ export async function init() {
     // Al abrir el menú se pregunta al servidor, porque es la pantalla a la que
     // se llega tras iniciar sesión y la consulta del arranque fue sin sesión.
     if (!esSoporte) {
+        cargarProximoEvento();
         pintarNovedades(novedadesPendientes());
         dejarDeEscuchar = suscribir(pintarNovedades);
         consultarAhora();

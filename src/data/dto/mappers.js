@@ -22,6 +22,7 @@ import { InformeAsistencia, FilaAlumnoInforme } from '../../domain/entities/Info
 import { ResumenColegio, AsistenciaDeHoy } from '../../domain/entities/ResumenColegio.js';
 import { Circular, PaginaDeCirculares, LecturaDeCircular, FamiliaLectora } from '../../domain/entities/Circular.js';
 import { Jardin } from '../../domain/entities/Jardin.js';
+import { Evento, CalendarioDeEventos } from '../../domain/entities/Evento.js';
 
 /** Algunos endpoints devuelven listas, otros {data:[...]}; normaliza a array. */
 export function comoLista(json) {
@@ -528,4 +529,36 @@ export function aAltaDeJardin(json) {
         director:     { id: Number(json?.director?.id), nombre: json?.director?.nombre ?? '', email: json?.director?.email ?? '' },
         logoEsperado: json?.logo_esperado ?? null,
     };
+}
+
+/** Un evento de eventos.php o guardar_evento.php (BL-76). */
+export function aEvento(j) {
+    return new Evento({
+        id:          Number(j.id),
+        tipo:        j.tipo ?? 'otro',
+        tipoNombre:  j.tipo_nombre ?? 'Otro',
+        color:       j.color ?? 'gris',
+        titulo:      j.titulo ?? '',
+        descripcion: j.descripcion ?? '',
+        lugar:       j.lugar ?? null,
+        fechaInicio: j.fecha_inicio,
+        fechaFin:    j.fecha_fin ?? j.fecha_inicio,
+        horaInicio:  j.hora_inicio ?? null,
+        horaFin:     j.hora_fin ?? null,
+        grupoId:     j.grupo_id === null || j.grupo_id === undefined ? null : Number(j.grupo_id),
+        grupoNombre: j.grupo_nombre ?? null,
+        autor:       j.autor ?? null,
+        puedeEditar: j.puede_editar === true,
+    });
+}
+
+/** La respuesta de eventos.php: eventos + lo que hace falta para crear uno. */
+export function aCalendarioDeEventos(json) {
+    return new CalendarioDeEventos({
+        hoy:             json?.hoy ?? null,
+        tipos:           (Array.isArray(json?.tipos) ? json.tipos : []).map(t => ({ clave: t.clave, nombre: t.nombre, color: t.color ?? 'gris' })),
+        puedeCrear:      json?.puede_crear === true,
+        gruposParaCrear: (Array.isArray(json?.grupos_para_crear) ? json.grupos_para_crear : []).map(g => ({ id: Number(g.id), nombre: g.nombre })),
+        eventos:         (Array.isArray(json?.eventos) ? json.eventos : []).map(aEvento),
+    });
 }

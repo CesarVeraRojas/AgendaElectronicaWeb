@@ -138,6 +138,14 @@ export class AgendaApiDataSource {
     /** Qué familias la leyeron. Sólo director. */
     getLecturaCircular(circularId)      { return this.http.get('lectura_circular.php', { circular_id: circularId }); }
 
+    // ── Calendario de eventos (BL-76) ───────────────────────────
+    /** Sin rango, el servidor da de hoy a 120 días. */
+    getEventos(desde = null, hasta = null) { return this.http.get('eventos.php', { desde, hasta }); }
+    /** Crear (sin evento_id) o editar. */
+    guardarEvento(cuerpo)               { return this.http.post('guardar_evento.php', cuerpo); }
+    /** Se cancela, no se borra: las familias reciben el aviso. */
+    cancelarEvento(eventoId)            { return this.http.post('cancelar_evento.php', { evento_id: eventoId }); }
+
     // ── Soporte (BL-74) ─────────────────────────────────────────
     getJardines()                       { return this.http.get('soporte_jardines.php'); }
     /** Jardín y primer director en una sola petición: el servidor los crea juntos o ninguno. */

@@ -51,6 +51,8 @@ export class ObtenerMenuPorRol {
 
         // BL-70: las circulares, para los tres roles. Publicar y retirar es sólo
         // del director, y eso lo decide el servidor, no el menú.
+        // BL-76: el calendario de eventos, para los tres roles del jardín.
+        opciones.push(new OpcionMenu({ texto: 'Eventos', icono: 'event', ruta: 'eventos', color: 'primary' }));
         opciones.push(new OpcionMenu({ texto: 'Circulares', icono: 'campaign', ruta: 'circulares', color: 'secondary' }));
         opciones.push(new OpcionMenu({ texto: 'Mensajes', icono: 'email', ruta: 'mensajes', color: 'tertiary' }));
 
