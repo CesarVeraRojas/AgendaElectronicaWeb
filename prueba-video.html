@@ -103,9 +103,10 @@ const BITRATE_VIDEO = 2_000_000;   // ~15 MB por minuto con el audio
 const BITRATE_AUDIO = 96_000;
 
 const $ = (id) => document.getElementById(id);
-const informe = { pagina: 'prueba-video BL-79 v1', fecha: new Date().toISOString(), navegador: navigator.userAgent };
+const informe = { pagina: 'prueba-video BL-79 v2', fecha: new Date().toISOString(), navegador: navigator.userAgent };
 let archivo = null;
 let urlResultado = null;
+let listo = null;   // la revisión inicial, que registra el AAC de respaldo
 
 const mb = (bytes) => (bytes / 1048576).toFixed(1).replace('.', ',') + ' MB';
 const seg = (s) => s.toFixed(1).replace('.', ',') + ' s';
@@ -176,6 +177,10 @@ $('btn-convertir').addEventListener('click', async () => {
   $('texto-avance').textContent = 'Preparando…';
   const inicio = performance.now();
   try {
+    // Sin esto, si el codificador de respaldo aún se está descargando, la
+    // conversión descarta el audio sin decir nada (pasó en Render).
+    $('texto-avance').textContent = 'Preparando el codificador…';
+    await listo;
     const input = new Input({ source: new BlobSource(archivo), formats: ALL_FORMATS });
     const dur = await input.computeDuration();
     const output = new Output({ format: new Mp4OutputFormat({ fastStart: 'in-memory' }), target: new BufferTarget() });
@@ -198,6 +203,8 @@ $('btn-convertir').addEventListener('click', async () => {
       throw new Error('Este navegador no puede preparar el video (' + razones.join(', ') + ').');
     }
     informe.pistas_descartadas = conversion.discardedTracks.map(d => `${d.track.type}: ${d.reason}`);
+    const audioPerdido = conversion.discardedTracks.find(d => d.track.type === 'audio');
+    if (audioPerdido) throw new Error('El video se quedaría sin sonido (' + audioPerdido.reason + ').');
     conversion.onProgress = (p) => {
       $('barra').value = p;
       $('texto-avance').textContent = `${Math.round(p * 100)} % · ${seg((performance.now() - inicio) / 1000)}`;
@@ -246,7 +253,8 @@ $('btn-copiar').addEventListener('click', async () => {
   catch { $('informe').select(); document.execCommand('copy'); $('btn-copiar').textContent = 'Copiado'; }
 });
 
-revisar().catch(err => { informe.error_inicio = err.message; actualizarInforme();
+listo = revisar();
+listo.catch(err => { informe.error_inicio = err.message; actualizarInforme();
   pintar($('capacidades'), [['Error', `<span class="mal">${escapar(err.message)}</span>`]]); });
 </script>
 </body>
