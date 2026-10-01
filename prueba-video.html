@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<meta name="theme-color" content="#0288D1" />
+<title>Prueba de video · AgendaKids</title>
+<!--
+  BL-79, fase 0. Prototipo: ¿puede el navegador del teléfono (sobre todo Safari
+  del iPhone) recortar un video a 60 s y pasarlo a MP4 H.264 de 720p antes de
+  subirlo? NO sube nada: todo pasa dentro del teléfono. Se borra cuando la
+  subida de videos de verdad esté hecha.
+
+  Mediabunny (MPL-2.0) va copiada en vendor/, sin CDN. El codificador AAC de
+  respaldo sólo se carga si el navegador no trae el suyo (Safari antiguo).
+-->
+<script type="importmap">
+{ "imports": { "mediabunny": "./vendor/mediabunny/mediabunny.min.mjs" } }
+</script>
+<style>
+  :root { --primary: #0288D1; --texto: #1c2733; --suave: #5b6b7a; --fondo: #f4f8fb; --tarjeta: #fff;
+          --ok: #2e7d32; --mal: #c62828; --borde: #d6e0e8; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--texto);
+         background: var(--fondo); line-height: 1.45; }
+  header { background: var(--primary); color: #fff; padding: 16px; }
+  header h1 { margin: 0; font-size: 20px; }
+  header p { margin: 4px 0 0; opacity: .9; font-size: 14px; }
+  main { max-width: 560px; margin: 0 auto; padding: 16px; }
+  .tarjeta { background: var(--tarjeta); border-radius: 12px; padding: 16px; margin-bottom: 14px;
+             box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  h2 { font-size: 16px; margin: 0 0 8px; color: var(--primary); }
+  .boton { display: block; width: 100%; padding: 14px; border: 0; border-radius: 10px; background: var(--primary);
+           color: #fff; font-size: 16px; font-weight: 600; text-align: center; cursor: pointer; text-decoration: none; }
+  .boton[disabled] { opacity: .5; }
+  .boton--borde { background: #fff; color: var(--primary); border: 2px solid var(--primary); margin-top: 8px; }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; font-size: 14px; }
+  dt { color: var(--suave); } dd { margin: 0; word-break: break-word; }
+  .ok { color: var(--ok); font-weight: 600; } .mal { color: var(--mal); font-weight: 600; }
+  progress { width: 100%; height: 14px; }
+  video { width: 100%; max-height: 420px; background: #000; border-radius: 8px; margin-top: 8px; }
+  textarea { width: 100%; min-height: 160px; font: 12px/1.4 ui-monospace, Menlo, monospace; border: 1px solid var(--borde);
+             border-radius: 8px; padding: 8px; }
+  .nota { font-size: 13px; color: var(--suave); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Prueba de video</h1>
+  <p>Comprueba si este teléfono puede preparar un video para AgendaKids. No se sube nada.</p>
+</header>
+<main>
+  <section class="tarjeta">
+    <h2>1. Este navegador</h2>
+    <dl id="capacidades"><dt>Revisando…</dt><dd></dd></dl>
+  </section>
+
+  <section class="tarjeta">
+    <h2>2. Elija un video</h2>
+    <p class="nota">De la galería o grabado en el momento. Si dura más de 60 segundos se recorta. Use un video
+      sin niños reconocibles o uno suyo: el resultado sólo queda en este teléfono.</p>
+    <label class="boton" for="archivo">Elegir video</label>
+    <input type="file" id="archivo" accept="video/*" hidden />
+    <dl id="original" hidden></dl>
+  </section>
+
+  <section class="tarjeta" id="tarjeta-conversion" hidden>
+    <h2>3. Preparar el video</h2>
+    <p class="nota">No cambie de aplicación ni bloquee la pantalla mientras tanto.</p>
+    <button class="boton" id="btn-convertir">Preparar (máx. 60 s, 720p)</button>
+    <div id="avance" hidden>
+      <progress id="barra" max="1" value="0"></progress>
+      <p class="nota" id="texto-avance"></p>
+    </div>
+  </section>
+
+  <section class="tarjeta" id="tarjeta-resultado" hidden>
+    <h2>4. Resultado</h2>
+    <dl id="resultado"></dl>
+    <video id="vista" controls playsinline></video>
+    <a class="boton boton--borde" id="btn-descargar" download="prueba-agendakids.mp4">Descargar el resultado</a>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Informe para enviar</h2>
+    <p class="nota">Cópielo y péguelo en el chat. No incluye el video ni datos personales.</p>
+    <textarea id="informe" readonly></textarea>
+    <button class="boton boton--borde" id="btn-copiar">Copiar informe</button>
+  </section>
+</main>
+
+<script type="module">
+import {
+  Input, Output, Conversion, ALL_FORMATS, BlobSource, BufferTarget, Mp4OutputFormat,
+  canEncodeVideo, canEncodeAudio,
+} from 'mediabunny';
+
+const MAX_SEGUNDOS = 60;
+const LADO_CORTO = 720;
+const BITRATE_VIDEO = 2_000_000;   // ~15 MB por minuto con el audio
+const BITRATE_AUDIO = 96_000;
+
+const $ = (id) => document.getElementById(id);
+const informe = { pagina: 'prueba-video BL-79 v1', fecha: new Date().toISOString(), navegador: navigator.userAgent };
+let archivo = null;
+let urlResultado = null;
+
+const mb = (bytes) => (bytes / 1048576).toFixed(1).replace('.', ',') + ' MB';
+const seg = (s) => s.toFixed(1).replace('.', ',') + ' s';
+const si = (v) => v ? '<span class="ok">Sí</span>' : '<span class="mal">No</span>';
+const escapar = (t) => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+function pintar(dl, filas) {
+  dl.innerHTML = filas.map(([k, v]) => `<dt>${escapar(k)}</dt><dd>${v}</dd>`).join('');
+  dl.hidden = false;
+}
+function actualizarInforme() {
+  $('informe').value = Object.entries(informe).map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`).join('\n');
+}
+
+// --- 1. Qué sabe hacer este navegador ---
+async function revisar() {
+  const tieneVE = 'VideoEncoder' in window, tieneAE = 'AudioEncoder' in window;
+  let h264 = false, aac = false;
+  try { h264 = await canEncodeVideo('avc', { width: 1280, height: 720, bitrate: BITRATE_VIDEO }); } catch (e) {}
+  try { aac = await canEncodeAudio('aac', { numberOfChannels: 2, sampleRate: 48000, bitrate: BITRATE_AUDIO }); } catch (e) {}
+  Object.assign(informe, { VideoEncoder: tieneVE, AudioEncoder: tieneAE, h264_720p: h264, aac_nativo: aac });
+  pintar($('capacidades'), [
+    ['Codificar video (WebCodecs)', si(tieneVE)],
+    ['MP4 H.264 a 720p', si(h264)],
+    ['Audio AAC', aac ? 'Propio del navegador' : 'Con el codificador de respaldo'],
+  ]);
+  if (!aac) {
+    // Safari antes de la 26 no trae AudioEncoder: el respaldo va en WASM (~1 MB).
+    const { registerAacEncoder } = await import('./vendor/mediabunny/mediabunny-aac-encoder.min.mjs');
+    registerAacEncoder();
+    informe.aac_respaldo = true;
+  }
+  actualizarInforme();
+}
+
+// --- 2. El video elegido ---
+$('archivo').addEventListener('change', async (e) => {
+  archivo = e.target.files?.[0] ?? null;
+  $('tarjeta-resultado').hidden = true;
+  if (!archivo) return;
+  const filas = [['Archivo', escapar(archivo.name)], ['Tipo', escapar(archivo.type || '(no dice)')], ['Peso', mb(archivo.size)]];
+  Object.assign(informe, { original_tipo: archivo.type, original_mb: +(archivo.size / 1048576).toFixed(1) });
+  try {
+    const input = new Input({ source: new BlobSource(archivo), formats: ALL_FORMATS });
+    const v = await input.getPrimaryVideoTrack();
+    const a = await input.getPrimaryAudioTrack();
+    const dur = await input.computeDuration();
+    filas.push(['Formato', escapar(await input.getMimeType())], ['Duración', seg(dur)]);
+    if (v) filas.push(['Video', `${escapar(v.codec ?? '¿?')} · ${v.displayWidth}×${v.displayHeight}` + (v.rotation ? ` · girado ${v.rotation}°` : '')]);
+    filas.push(['Audio', a ? `${escapar(a.codec ?? '¿?')} · ${a.numberOfChannels} canales` : 'sin audio']);
+    Object.assign(informe, { original_formato: await input.getMimeType(), original_segundos: +dur.toFixed(1),
+      original_video: v ? `${v.codec} ${v.displayWidth}x${v.displayHeight} rot${v.rotation}` : null, original_audio: a?.codec ?? null });
+    $('tarjeta-conversion').hidden = false;
+  } catch (err) {
+    filas.push(['Leerlo', `<span class="mal">No se pudo: ${escapar(err.message)}</span>`]);
+    informe.error_lectura = err.message;
+  }
+  pintar($('original'), filas);
+  actualizarInforme();
+});
+
+// --- 3. Recortar, reducir a 720p y pasar a MP4 H.264 + AAC ---
+$('btn-convertir').addEventListener('click', async () => {
+  if (!archivo) return;
+  const btn = $('btn-convertir');
+  btn.disabled = true;
+  $('avance').hidden = false;
+  $('texto-avance').textContent = 'Preparando…';
+  const inicio = performance.now();
+  try {
+    const input = new Input({ source: new BlobSource(archivo), formats: ALL_FORMATS });
+    const dur = await input.computeDuration();
+    const output = new Output({ format: new Mp4OutputFormat({ fastStart: 'in-memory' }), target: new BufferTarget() });
+    const conversion = await Conversion.init({
+      input, output,
+      tracks: 'primary',
+      copy: false,   // siempre recodificar: así el peso queda bajo control
+      trim: { start: 0, end: Math.min(dur, MAX_SEGUNDOS) },
+      video: (t) => {
+        // El lado corto a 720 (o menos, si ya es más pequeño); el otro, por proporción.
+        const vertical = t.displayHeight > t.displayWidth;
+        const corto = Math.min(LADO_CORTO, vertical ? t.displayWidth : t.displayHeight);
+        return { codec: 'avc', bitrate: BITRATE_VIDEO, ...(vertical ? { width: corto } : { height: corto }) };
+      },
+      audio: { codec: 'aac', bitrate: BITRATE_AUDIO, numberOfChannels: 2, sampleRate: 48000 },
+    });
+    if (!conversion.isValid) {
+      const razones = conversion.discardedTracks.map(d => `${d.track.type}: ${d.reason}`);
+      informe.conversion_invalida = razones;
+      throw new Error('Este navegador no puede preparar el video (' + razones.join(', ') + ').');
+    }
+    informe.pistas_descartadas = conversion.discardedTracks.map(d => `${d.track.type}: ${d.reason}`);
+    conversion.onProgress = (p) => {
+      $('barra').value = p;
+      $('texto-avance').textContent = `${Math.round(p * 100)} % · ${seg((performance.now() - inicio) / 1000)}`;
+    };
+    await conversion.execute();
+
+    const bytes = output.target.buffer;
+    const blob = new Blob([bytes], { type: 'video/mp4' });
+    const segundos = (performance.now() - inicio) / 1000;
+
+    // Comprobar lo que salió, leyéndolo otra vez.
+    const res = new Input({ source: new BlobSource(blob), formats: ALL_FORMATS });
+    const rv = await res.getPrimaryVideoTrack();
+    const ra = await res.getPrimaryAudioTrack();
+    const rdur = await res.computeDuration();
+    Object.assign(informe, { resultado_mb: +(blob.size / 1048576).toFixed(1), resultado_segundos: +rdur.toFixed(1),
+      resultado_video: rv ? `${rv.codec} ${rv.displayWidth}x${rv.displayHeight}` : null, resultado_audio: ra?.codec ?? null,
+      tardo_segundos: +segundos.toFixed(1), codec_video: await rv?.getCodecParameterString() });
+
+    if (urlResultado) URL.revokeObjectURL(urlResultado);
+    urlResultado = URL.createObjectURL(blob);
+    $('vista').src = urlResultado;
+    $('btn-descargar').href = urlResultado;
+    pintar($('resultado'), [
+      ['Peso', `${mb(blob.size)} <span class="nota">(antes ${mb(archivo.size)})</span>`],
+      ['Duración', seg(rdur) + (dur > MAX_SEGUNDOS ? ' <span class="nota">(recortado)</span>' : '')],
+      ['Video', rv ? `${escapar(rv.codec)} · ${rv.displayWidth}×${rv.displayHeight}` : '<span class="mal">sin video</span>'],
+      ['Audio', ra ? escapar(ra.codec) : '<span class="mal">sin audio</span>'],
+      ['Tardó', seg(segundos)],
+    ]);
+    $('tarjeta-resultado').hidden = false;
+    $('texto-avance').textContent = '¡Listo! Reprodúzcalo abajo para comprobar que se ve y se oye bien.';
+    $('vista').addEventListener('loadedmetadata', () => { informe.se_reproduce = true; actualizarInforme(); }, { once: true });
+    $('vista').addEventListener('error', () => { informe.se_reproduce = false; actualizarInforme(); }, { once: true });
+  } catch (err) {
+    informe.error_conversion = err.message;
+    $('texto-avance').innerHTML = `<span class="mal">${escapar(err.message)}</span>`;
+  } finally {
+    btn.disabled = false;
+    actualizarInforme();
+  }
+});
+
+$('btn-copiar').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('informe').value); $('btn-copiar').textContent = 'Copiado'; }
+  catch { $('informe').select(); document.execCommand('copy'); $('btn-copiar').textContent = 'Copiado'; }
+});
+
+revisar().catch(err => { informe.error_inicio = err.message; actualizarInforme();
+  pintar($('capacidades'), [['Error', `<span class="mal">${escapar(err.message)}</span>`]]); });
+</script>
+</body>
+</html>
