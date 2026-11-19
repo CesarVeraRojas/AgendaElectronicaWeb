@@ -1,0 +1,8 @@
+---
+# Despliegue en cPanel (Git Version Control → "Desplegar HEAD").
+# Copia la web a la carpeta del subdominio agendakids.kindergartenhappychildren.com.
+# El trabajo lo hace desplegar_cpanel.sh; ver sus comentarios.
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/kinderga/agendakids.kindergartenhappychildren.com
+    - /bin/bash desplegar_cpanel.sh "$DEPLOYPATH"

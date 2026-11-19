@@ -1,0 +1,55 @@
+# .htaccess de la web de AgendaKids en el hosting (LiteSpeed + cPanel).
+#
+# Reemplaza lo que hacía render.yaml cuando la web vivía en Render.
+# Va en la carpeta raíz del subdominio agendakids.kindergartenhappychildren.com,
+# junto a index.html. Render lo ignora, así que no estorba en el repositorio.
+#
+# El paso de http a https NO va aquí: se activa en cPanel → Dominios →
+# "Forzar redirección HTTPS". Hacerlo con RewriteRule detrás del proxy del
+# hosting puede caer en un bucle de redirecciones.
+
+DirectoryIndex index.html
+Options -Indexes
+
+# ── Tipos de archivo ─────────────────────────────────────────────────────────
+# La librería de videos (vendor/mediabunny) son módulos .mjs. Si el servidor los
+# entrega como application/octet-stream, el navegador se niega a cargarlos y la
+# subida de videos deja de funcionar sin un error visible.
+<IfModule mod_mime.c>
+  AddType text/javascript .js .mjs
+  AddType text/css .css
+  AddType application/json .json
+  AddCharset utf-8 .html .js .mjs .css .json
+</IfModule>
+
+# ── Que el navegador no se quede con la versión vieja ────────────────────────
+# Con Render había que "recargar forzando" tras cada publicación. no-cache NO
+# impide guardar: obliga a preguntar al servidor si cambió (Last-Modified) y,
+# si no cambió, la respuesta es un 304 de pocos bytes.
+# Las imágenes y fuentes sí se guardan una semana.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|js|mjs|css|json)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(png|jpe?g|gif|svg|webp|ico|woff2?)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+
+  # Las mismas cabeceras de seguridad que ponía render.yaml.
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ── Lo que nunca debe servirse ───────────────────────────────────────────────
+# No se sube, pero por si acaso: archivos ocultos (.git…), notas y configuración
+# de Render.
+<FilesMatch "^\.|\.(md|ya?ml|log|zip)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
