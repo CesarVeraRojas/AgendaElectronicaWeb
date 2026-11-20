@@ -19,7 +19,8 @@ const check = (n, c, x = '') => { if (c) { ok++; console.log(`  ✅ ${n}`); } el
 console.log('\n── El menú de soporte ──');
 const menu = new ObtenerMenuPorRol();
 const ops = menu.ejecutar(new Sesion({ userType: Rol.SOPORTE, userId: 1 }));
-check('soporte sólo ve "Jardines"', ops.length === 1 && ops[0].ruta === 'jardines', JSON.stringify(ops));
+check('soporte ve "Jardines" y "Usuarios"', ops.map(o => o.ruta).join(',') === 'jardines,usuarios', JSON.stringify(ops));
+check('el director tampoco ve "Usuarios"', !menu.ejecutar(new Sesion({ userType: Rol.DIRECTOR, userId: 1 })).some(o => o.ruta === 'usuarios'));
 check('sin circulares ni mensajes, que son de un jardín', !ops.some(o => ['circulares', 'mensajes'].includes(o.ruta)));
 check('el director sigue sin ver "Jardines"', !menu.ejecutar(new Sesion({ userType: Rol.DIRECTOR, userId: 1 })).some(o => o.ruta === 'jardines'));
 check('soporte no lleva el pie del colegio', menu.debeMostrarPieColegio(new Sesion({ userType: Rol.SOPORTE, userId: 1 })) === false);

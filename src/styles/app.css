@@ -512,3 +512,14 @@ body {
 .menu-proximo__texto em { font-style: normal; font-size: 12px; color: var(--on-surface-variant); }
 .menu-proximo__texto strong { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .menu-proximo__texto span { font-size: 13px; color: var(--primary-dark); }
+
+/* ── Soporte: buscador de cuentas (2026-11-20) ─────────────── */
+.buscador-cuentas { display: flex; gap: var(--sp-sm); align-items: flex-end; flex-wrap: wrap; }
+.buscador-cuentas__campo { flex: 1 1 220px; }
+#lista-cuentas { display: flex; flex-direction: column; gap: var(--sp-md); margin-top: var(--sp-sm); }
+.cuenta__tipo { font-size: 12px; font-weight: 500; color: var(--on-surface-variant); margin-left: var(--sp-sm); }
+.cuenta__clave { margin-top: var(--sp-md); padding: var(--sp-sm) var(--sp-md); border-radius: 8px; background: var(--surface-variant); }
+.cuenta__clave-texto { margin: var(--sp-sm) 0; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 20px; font-weight: 700; letter-spacing: 2px; white-space: nowrap; user-select: all; }
+.cuenta__acciones { flex-wrap: wrap; }
+.cuenta__desactivar { color: var(--on-error-container); border-color: var(--on-error-container); }
+.cuenta__desactivar:hover:not(:disabled) { background: var(--error-container, #FDECEA); }

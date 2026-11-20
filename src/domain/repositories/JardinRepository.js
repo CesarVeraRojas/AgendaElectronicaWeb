@@ -6,4 +6,6 @@ export class JardinRepository {
     listar()          { noImplementado('JardinRepository', 'listar'); }
     /** @returns {Promise<{jardin:{id,nombre}, director:{id,nombre,email}, logoEsperado:string}>} */
     darDeAlta(nuevo)  { noImplementado('JardinRepository', 'darDeAlta'); }
+    /** @returns {Promise<{jardin:{id,nombre}, directoresActualizados:number}>} */
+    editar(editado)   { noImplementado('JardinRepository', 'editar'); }
 }

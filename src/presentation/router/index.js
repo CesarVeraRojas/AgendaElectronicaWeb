@@ -42,6 +42,8 @@ const RUTAS = {
     'evento':                    () => import('../pages/evento.page.js'),
     'editar-evento':             () => import('../pages/editar-evento.page.js'),
     'alta-jardin':               () => import('../pages/alta-jardin.page.js'),
+    'editar-jardin':             () => import('../pages/editar-jardin.page.js'),
+    'usuarios':                  () => import('../pages/usuarios.page.js'),
 };
 
 /** Única ruta pública, igual que en Android. */

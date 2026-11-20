@@ -25,7 +25,7 @@ export class Jardin {
         this.direccion     = direccion;
         this.correo        = correo;
         this.creado        = creado;
-        this.directores    = directores;     // [{ nombre, email }]
+        this.directores    = directores;     // [{ id, nombre, nombres, apellidos, email, telefono }]
         this.alumnos       = alumnos;
         this.grupos        = grupos;
         this.profesionales = profesionales;
@@ -63,6 +63,45 @@ export function validarNuevoJardin(n) {
     if (!CORREO.test(t(d.email)))                              return 'El correo del director no es válido.';
     if (String(d.password ?? '').length < MIN_CONTRASENA_DIRECTOR)
                                                                return `La contraseña inicial debe tener al menos ${MIN_CONTRASENA_DIRECTOR} caracteres.`;
+    return null;
+}
+
+/**
+ * Lo que soporte corrige de un jardín ya creado (2026-11-20): sus datos y los
+ * de sus directores. Ni el documento ni la contraseña del director.
+ */
+export class JardinEditado {
+    constructor({ id, nombre = '', direccion = '', correo = '', directores = [] }) {
+        this.id         = id;
+        this.nombre     = nombre;
+        this.direccion  = direccion;
+        this.correo     = correo;
+        this.directores = directores;   // [{ id, nombres, apellidos, email, telefono }]
+    }
+
+    /** El formulario arranca con lo que hay. */
+    static desde(j) {
+        return new JardinEditado({
+            id: j.id, nombre: j.nombre ?? '', direccion: j.direccion ?? '', correo: j.correo ?? '',
+            directores: j.directores.map(d => ({ id: d.id, nombres: d.nombres ?? '', apellidos: d.apellidos ?? '',
+                                                 email: d.email ?? '', telefono: d.telefono ?? '' })),
+        });
+    }
+}
+
+/** El primer error de la edición, o null. Mismas palabras que soporte_editar_jardin.php. */
+export function validarJardinEditado(e) {
+    const t = (x) => String(x ?? '').trim();
+    if (!t(e?.nombre))                             return 'El nombre del jardín es obligatorio.';
+    if (t(e?.correo) && !CORREO.test(t(e.correo))) return 'El correo del jardín no es válido.';
+    const vistos = new Set();
+    for (const d of e?.directores ?? []) {
+        if (!t(d.nombres) || !t(d.apellidos))      return 'Los nombres y apellidos del director son obligatorios.';
+        if (!CORREO.test(t(d.email)))              return 'El correo del director no es válido.';
+        const correo = t(d.email).toLowerCase();
+        if (vistos.has(correo))                    return 'Dos directores no pueden tener el mismo correo.';
+        vistos.add(correo);
+    }
     return null;
 }
 

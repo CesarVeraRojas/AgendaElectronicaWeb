@@ -1,5 +1,5 @@
 import { ValidationError } from '../../core/errors.js';
-import { validarNuevoJardin } from '../entities/Jardin.js';
+import { validarNuevoJardin, validarJardinEditado } from '../entities/Jardin.js';
 
 /**
  * AdministrarJardines — Lo que hace soporte (BL-74): ver los jardines y dar de
@@ -21,5 +21,12 @@ export class AdministrarJardines {
         const error = validarNuevoJardin(nuevo);
         if (error) throw new ValidationError(error);
         return this.jardinRepository.darDeAlta(nuevo);
+    }
+
+    /** Corregir los datos del jardín y de sus directores (2026-11-20). */
+    async editar(editado) {
+        const error = validarJardinEditado(editado);
+        if (error) throw new ValidationError(error);
+        return this.jardinRepository.editar(editado);
     }
 }

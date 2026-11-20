@@ -4,6 +4,8 @@
  *
  * Una tarjeta por jardín con su dirección, sus cifras y si ya tiene logo (y si
  * no, con qué nombre subirlo, BL-75). Ningún dato de niños ni de familias.
+ * Desde el 2026-11-20, cada tarjeta lleva "Editar" (datos del jardín y de sus
+ * directores).
  */
 import { Casos }        from '../../core/container.js';
 import { navegar }      from '../router/index.js';
@@ -25,7 +27,9 @@ export function render() {
         </div>`;
 }
 
-function tarjeta(j) {
+let jardines = [];
+
+function tarjeta(j, i) {
     const directores = j.directores.length
         ? j.directores.map(d => `${d.nombre} (${d.email})`).join(', ')
         : 'Sin director';
@@ -38,6 +42,11 @@ function tarjeta(j) {
                 <p class="jardin__dato"><span class="material-icons">groups</span>${textoCifras(j)}</p>
                 <p class="jardin__dato${j.logo ? '' : ' jardin__dato--aviso'}"><span class="material-icons">image</span>${textoLogo(j)}</p>
                 <p class="jardin__pie">Número del jardín: ${j.id}${j.creado ? ` · Alta: ${fechaCorta(j.creado)}` : ''}</p>
+                <div class="acciones-fila">
+                    <button class="btn btn--outlined" data-editar="${i}">
+                        <span class="material-icons">edit</span><span class="btn__label">Editar</span>
+                    </button>
+                </div>
             </div>
         </article>`;
 }
@@ -45,9 +54,14 @@ function tarjeta(j) {
 export async function init() {
     document.getElementById('btn-alta').addEventListener('click', () => navegar('alta-jardin'));
     const lista = document.getElementById('lista-jardines');
+    lista.addEventListener('click', (ev) => {
+        const boton = ev.target.closest('[data-editar]');
+        const jardin = boton && jardines[Number(boton.dataset.editar)];
+        if (jardin) navegar('editar-jardin', { jardin });
+    });
     lista.innerHTML = spinner('Cargando jardines…');
     try {
-        const jardines = await Casos.administrarJardines.listar();
+        jardines = await Casos.administrarJardines.listar();
         lista.innerHTML = jardines.length
             ? jardines.map(tarjeta).join('')
             : estadoVacio('Todavía no hay jardines. Toque "Nuevo jardín" para dar de alta el primero.', 'domain');

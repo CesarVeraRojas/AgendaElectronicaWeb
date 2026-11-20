@@ -17,10 +17,14 @@ export class ObtenerMenuPorRol {
         const opciones = [];
         const rol = sesion.userType;
 
-        // BL-74: soporte sólo da de alta jardines. No es de ningún jardín, así
-        // que no tiene circulares ni mensajes.
+        // BL-74: soporte administra jardines y, desde el 2026-11-20, atiende
+        // las cuentas (buscar, restablecer contraseña, desactivar). No es de
+        // ningún jardín, así que no tiene circulares ni mensajes.
         if (rol === Rol.SOPORTE) {
-            return [new OpcionMenu({ texto: 'Jardines', icono: 'domain', ruta: 'jardines', color: 'primary' })];
+            return [
+                new OpcionMenu({ texto: 'Jardines', icono: 'domain',          ruta: 'jardines', color: 'primary'   }),
+                new OpcionMenu({ texto: 'Usuarios', icono: 'manage_accounts', ruta: 'usuarios', color: 'secondary' }),
+            ];
         }
 
         if (rol === Rol.DIRECTOR) {

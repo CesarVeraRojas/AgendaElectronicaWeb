@@ -22,6 +22,7 @@ import { InformeAsistencia, FilaAlumnoInforme } from '../../domain/entities/Info
 import { ResumenColegio, AsistenciaDeHoy } from '../../domain/entities/ResumenColegio.js';
 import { Circular, PaginaDeCirculares, LecturaDeCircular, FamiliaLectora } from '../../domain/entities/Circular.js';
 import { Jardin } from '../../domain/entities/Jardin.js';
+import { Cuenta } from '../../domain/entities/Cuenta.js';
 import { Evento, CalendarioDeEventos } from '../../domain/entities/Evento.js';
 
 /** Algunos endpoints devuelven listas, otros {data:[...]}; normaliza a array. */
@@ -512,7 +513,9 @@ export function aJardines(json) {
         direccion:     j.direccion ?? null,
         correo:        j.correo ?? null,
         creado:        j.creado ?? null,
-        directores:    Array.isArray(j.directores) ? j.directores.map(d => ({ nombre: d.nombre ?? '', email: d.email ?? '' })) : [],
+        directores:    Array.isArray(j.directores) ? j.directores.map(d => ({
+                           id: Number(d.id ?? 0), nombre: d.nombre ?? '', nombres: d.nombres ?? '', apellidos: d.apellidos ?? '',
+                           email: d.email ?? '', telefono: d.telefono ?? '' })) : [],
         alumnos:       Number(j.alumnos ?? 0),
         grupos:        Number(j.grupos ?? 0),
         profesionales: Number(j.profesionales ?? 0),
@@ -529,6 +532,49 @@ export function aAltaDeJardin(json) {
         director:     { id: Number(json?.director?.id), nombre: json?.director?.nombre ?? '', email: json?.director?.email ?? '' },
         logoEsperado: json?.logo_esperado ?? null,
     };
+}
+
+/** La respuesta de soporte_editar_jardin.php (2026-11-20). */
+export function aJardinEditado(json) {
+    return {
+        jardin:                 { id: Number(json?.jardin?.id), nombre: json?.jardin?.nombre ?? '' },
+        directoresActualizados: Number(json?.directores_actualizados ?? 0),
+    };
+}
+
+/** El buscador de soporte_usuarios.php (2026-11-20). */
+export function aCuentas(json) {
+    return {
+        cuentas: (Array.isArray(json?.usuarios) ? json.usuarios : []).map(u => new Cuenta({
+            tipo:             u.tipo ?? '',
+            id:               Number(u.id),
+            nombre:           u.nombre ?? '',
+            email:            u.email ?? '',
+            jardines:         Array.isArray(u.jardines) ? u.jardines.map(j => ({ id: Number(j.id), nombre: j.nombre ?? '' })) : [],
+            activo:           u.activo !== false,
+            tieneContrasena:  u.tiene_contrasena !== false,
+            ultimoIngreso:    u.ultimo_ingreso ?? null,
+            ultimaActividad:  u.ultima_actividad ?? null,
+            sesionesAbiertas: Number(u.sesiones_abiertas ?? 0),
+        })),
+        hayMas:          json?.hay_mas === true,
+        puedeDesactivar: json?.puede_desactivar === true,
+    };
+}
+
+/** La respuesta de soporte_restablecer_contrasena.php. */
+export function aContrasenaRestablecida(json) {
+    return {
+        usuario:          { nombre: json?.usuario?.nombre ?? '', email: json?.usuario?.email ?? '' },
+        contrasena:       json?.contrasena ?? '',
+        sesionesCerradas: Number(json?.sesiones_cerradas ?? 0),
+        activo:           json?.activo !== false,
+    };
+}
+
+/** La respuesta de soporte_estado_usuario.php. */
+export function aEstadoCuenta(json) {
+    return { activo: json?.activo === true, sesionesCerradas: Number(json?.sesiones_cerradas ?? 0) };
 }
 
 /** Un evento de eventos.php o guardar_evento.php (BL-76). */

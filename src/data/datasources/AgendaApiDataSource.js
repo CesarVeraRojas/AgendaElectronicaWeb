@@ -150,6 +150,13 @@ export class AgendaApiDataSource {
     getJardines()                       { return this.http.get('soporte_jardines.php'); }
     /** Jardín y primer director en una sola petición: el servidor los crea juntos o ninguno. */
     altaJardin(cuerpo)                  { return this.http.post('soporte_alta_jardin.php', cuerpo); }
+    /** Jardín y sus directores, todo o nada (2026-11-20). */
+    editarJardin(cuerpo)                { return this.http.post('soporte_editar_jardin.php', cuerpo); }
+    /** Directores, profesionales y acudientes de todos los jardines. */
+    buscarCuentas(q)                    { return this.http.get('soporte_usuarios.php', { q }); }
+    /** La contraseña temporal la genera el servidor y sólo llega aquí. */
+    restablecerContrasena(tipo, id)     { return this.http.post('soporte_restablecer_contrasena.php', { tipo, id }); }
+    cambiarEstadoCuenta(tipo, id, activo) { return this.http.post('soporte_estado_usuario.php', { tipo, id, activo }); }
 
     // ── Avisos de novedades ─────────────────────────────────────
     /** `desde` es la hora que devolvió el servidor la vez anterior, o null la primera. */
